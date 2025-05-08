@@ -5,8 +5,72 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
+"@commitlint/config-conventional@npm:^17.0.2":
+  version: 17.8.1
+  resolution: "@commitlint/config-conventional@npm:17.8.1"
+  dependencies:
+    conventional-changelog-conventionalcommits: "npm:^6.1.0"
+  checksum: 10c0/70abdc9f1361386060b30620decc376bc33ff0c27c6f2f89511df1d53127d238af7c3409db22651282caa614d54b91b1f5e35905d12b1f5db70603c351f6e482
+  languageName: node
+  linkType: hard
+
+"@evilmartians/lefthook@npm:^1.5.0":
+  version: 1.11.12
+  resolution: "@evilmartians/lefthook@npm:1.11.12"
+  bin:
+    lefthook: bin/index.js
+  checksum: 10c0/6cf10dcad826b00d945b99688a0b55a1ccf2fe41fb84e036c9157051dae494d97e41a514fb71fa217e60e2ccc6cfecd8ab753ed79096b1ae8d43611d3a9f1948
+  conditions: (os=darwin | os=linux | os=win32) & (cpu=x64 | cpu=arm64 | cpu=ia32)
+  languageName: node
+  linkType: hard
+
+"array-ify@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "array-ify@npm:1.0.0"
+  checksum: 10c0/75c9c072faac47bd61779c0c595e912fe660d338504ac70d10e39e1b8a4a0c9c87658703d619b9d1b70d324177ae29dc8d07dda0d0a15d005597bc4c5a59c70c
+  languageName: node
+  linkType: hard
+
+"compare-func@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "compare-func@npm:2.0.0"
+  dependencies:
+    array-ify: "npm:^1.0.0"
+    dot-prop: "npm:^5.1.0"
+  checksum: 10c0/78bd4dd4ed311a79bd264c9e13c36ed564cde657f1390e699e0f04b8eee1fc06ffb8698ce2dfb5fbe7342d509579c82d4e248f08915b708f77f7b72234086cc3
+  languageName: node
+  linkType: hard
+
+"conventional-changelog-conventionalcommits@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "conventional-changelog-conventionalcommits@npm:6.1.0"
+  dependencies:
+    compare-func: "npm:^2.0.0"
+  checksum: 10c0/b313f5c0160d109f58d976566e1331ede3a25ab19fbf43f86763b280659195de00a68551f7f3930bf1cbf39a5e707d94f2a25b79996e59043fa9ee0bed68a79f
+  languageName: node
+  linkType: hard
+
+"dot-prop@npm:^5.1.0":
+  version: 5.3.0
+  resolution: "dot-prop@npm:5.3.0"
+  dependencies:
+    is-obj: "npm:^2.0.0"
+  checksum: 10c0/93f0d343ef87fe8869320e62f2459f7e70f49c6098d948cc47e060f4a3f827d0ad61e83cb82f2bd90cd5b9571b8d334289978a43c0f98fea4f0e99ee8faa0599
+  languageName: node
+  linkType: hard
+
+"is-obj@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "is-obj@npm:2.0.0"
+  checksum: 10c0/85044ed7ba8bd169e2c2af3a178cacb92a97aa75de9569d02efef7f443a824b5e153eba72b9ae3aca6f8ce81955271aa2dc7da67a8b720575d3e38104208cb4e
+  languageName: node
+  linkType: hard
+
 "slaps_and_kisses@workspace:.":
   version: 0.0.0-use.local
   resolution: "slaps_and_kisses@workspace:."
+  dependencies:
+    "@commitlint/config-conventional": "npm:^17.0.2"
+    "@evilmartians/lefthook": "npm:^1.5.0"
   languageName: unknown
   linkType: soft
