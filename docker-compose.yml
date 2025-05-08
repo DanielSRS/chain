@@ -28,3 +28,17 @@ services:
     restart: unless-stopped
     depends_on:
       - mqtt-broker
+
+  # Service to install dependencies for type support in the editor
+  deps-installer:
+    image: node:18-alpine
+    container_name: deps-installer
+    working_dir: /workspace
+    command: >
+      sh -c "cd /workspace &&
+             yarn install &&
+             echo 'Dependencies installed successfully for editor type support'"
+    volumes:
+      - ./:/workspace
+    profiles:
+      - deps
