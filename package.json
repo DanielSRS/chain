@@ -2,14 +2,23 @@
   "name": "slaps_and_kisses",
   "packageManager": "yarn@4.9.1",
   "private": true,
+  "type": "module",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "typecheck:watch": "tsc --noEmit --watch",
+    "typecheck:all": "node scripts/typecheck-all.ts",
+    "update-refs": "node scripts/update-project-refs.ts",
+    "validate": "node scripts/validate-typescript.ts"
+  },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.5.0",
-    "commitlint": "^17.0.2"
+    "commitlint": "^17.0.2",
+    "typescript": "^5.8.3"
   },
   "commitlint": {
     "extends": [

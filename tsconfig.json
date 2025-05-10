@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@slaps_and_kisses/*": ["packages/*/src"]
+    }
+  },
+  "files": [],
+  "include": []
+}

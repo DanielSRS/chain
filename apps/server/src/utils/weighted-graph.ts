@@ -1,5 +1,5 @@
 // helper class
-class GraphNode {
+export class GraphNode {
   val: string;
   priority: number;
 
@@ -9,7 +9,7 @@ class GraphNode {
   }
 }
 
-class PriorityQueue {
+export class PriorityQueue {
   values: GraphNode[];
 
   constructor() {
@@ -35,7 +35,7 @@ class PriorityQueue {
   dequeue(): GraphNode {
     const min = this.values[0];
     const end = this.values.pop();
-    if (this.values.length > 0) {
+    if (this.values.length > 0 && end) {
       this.values[0] = end;
       this.sinkDown();
     }
@@ -58,7 +58,9 @@ class PriorityQueue {
         rightChild = this.values[rightChildIdx];
         if (
           (swap === null && rightChild.priority < element.priority) ||
-          (swap !== null && rightChild.priority < leftChild.priority)
+          (swap !== null &&
+            leftChild &&
+            rightChild.priority < leftChild.priority)
         ) {
           swap = rightChildIdx;
         }
@@ -71,23 +73,23 @@ class PriorityQueue {
   }
 }
 
-interface Neighbor {
+export interface Neighbor {
   node: string;
   weight: number;
 }
 
-interface PathResult {
+export interface PathResult {
   path: string[];
   cost: number;
 }
 
-interface DijkstraResult {
+export interface DijkstraResult {
   node: string;
   distance: number;
   path: string[];
 }
 
-class WeightedGraph {
+export class WeightedGraph {
   adjacencyList: Record<string, Neighbor[]>;
 
   constructor() {
