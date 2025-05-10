@@ -5,6 +5,9 @@ import tseslint from 'typescript-eslint';
 import prettierConfig from 'eslint-config-prettier';
 
 export default defineConfig([
+  {
+    ignores: ['**/dist/**', '**/node_modules/**'],
+  },
   { files: ['**/*.{js,mjs,cjs,ts}'] },
   {
     files: ['**/*.{js,mjs,cjs,ts}'],
