@@ -2,6 +2,19 @@
 
 This document contains guidelines on how to contribute to the project.
 
+## Code Style and Formatting
+
+This project uses Prettier for code formatting and ESLint for code quality. All code is automatically formatted on commit using Lefthook.
+
+### Prettier
+
+We use Prettier to ensure consistent code formatting across the project. The configuration is defined in `.prettierrc.json`.
+
+- Run `yarn format` to format all files in the project
+- Run `yarn format:check` to check if files are properly formatted without modifying them
+
+VS Code users: Install the recommended Prettier extension and formatting will happen automatically on save.
+
 ## TypeScript Setup
 
 This project uses TypeScript for type checking only, without transpilation. The code runs directly with Node.js's native TypeScript support.
@@ -10,14 +23,19 @@ This project uses TypeScript for type checking only, without transpilation. The 
 
 - `yarn typecheck` - Run type checking for all projects
 - `yarn typecheck:watch` - Watch mode for type checking
+- `yarn typecheck:all` - Run type checking across all workspaces
 - `yarn update-refs` - Update and verify TypeScript configurations across workspaces
 - `yarn validate` - Run a validation script to test TypeScript setup
+- `yarn format` - Format all files with Prettier
+- `yarn format:check` - Check if files are properly formatted
+- `yarn lint` - Run ESLint on all files
 
 ### Adding a New Package or App
 
 1. Create your package with a `tsconfig.json` file that extends from the base configuration:
 
 For apps:
+
 ```json
 {
   "extends": "../../tsconfig.base.json",
@@ -31,6 +49,7 @@ For apps:
 ```
 
 For packages:
+
 ```json
 {
   "extends": "../../tsconfig.base.json",
