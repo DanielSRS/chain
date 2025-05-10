@@ -15,3 +15,13 @@ commit-msg:
   commands:
     commitlint:
       run: npx commitlint --edit
+
+post-merge:
+  commands:
+    packages-install:
+      run: yarn install
+
+pre-push:
+  commands:
+    full-typecheck:
+      run: node scripts/typecheck-all.ts
