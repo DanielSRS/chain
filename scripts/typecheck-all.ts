@@ -23,7 +23,9 @@ const colors = {
   blue: '\x1b[34m',
 };
 
-console.log(`${colors.blue}Running TypeScript type checking across all workspaces${colors.reset}`);
+console.log(
+  `${colors.blue}Running TypeScript type checking across all workspaces${colors.reset}`,
+);
 
 // Type check root
 try {

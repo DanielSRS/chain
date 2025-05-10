@@ -58,7 +58,9 @@ export class PriorityQueue {
         rightChild = this.values[rightChildIdx];
         if (
           (swap === null && rightChild.priority < element.priority) ||
-          (swap !== null && leftChild && rightChild.priority < leftChild.priority)
+          (swap !== null &&
+            leftChild &&
+            rightChild.priority < leftChild.priority)
         ) {
           swap = rightChildIdx;
         }

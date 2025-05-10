@@ -5,9 +5,16 @@ const mqttHost = process.env.MQTT_HOST || 'localhost';
 const mqttPort = parseInt(process.env.MQTT_PORT || '9001');
 const wsPath = process.env.MQTT_PATH || '/';
 
-console.log(`Connecting to MQTT broker at ${mqttHost}:${mqttPort} with path ${wsPath}`);
+console.log(
+  `Connecting to MQTT broker at ${mqttHost}:${mqttPort} with path ${wsPath}`,
+);
 
-const mqttClient = new Paho.Client(mqttHost, mqttPort, wsPath, Date.now().toString() + 'Server');
+const mqttClient = new Paho.Client(
+  mqttHost,
+  mqttPort,
+  wsPath,
+  Date.now().toString() + 'Server',
+);
 
 mqttClient.onConnectionLost = responseObject => {
   if (responseObject.errorCode !== 0) {
@@ -16,7 +23,11 @@ mqttClient.onConnectionLost = responseObject => {
 };
 
 mqttClient.onMessageArrived = message => {
-  console.log('Message arrived at topic: ', message.destinationName, message.payloadString);
+  console.log(
+    'Message arrived at topic: ',
+    message.destinationName,
+    message.payloadString,
+  );
 };
 
 mqttClient.connect({
@@ -45,4 +56,6 @@ mqttClient.connect({
 
 const app = new Elysia().get('/', () => 'Hello Elysia').listen(3000);
 
-console.log(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`);
+console.log(
+  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
+);

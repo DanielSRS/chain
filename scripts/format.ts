@@ -7,10 +7,16 @@
 import { execSync } from 'child_process';
 import { resolve } from 'path';
 
-const DEFAULT_PATTERNS = ['**/*.{js,ts,jsx,tsx,json,md,yml,yaml}', '!node_modules/**', '!.yarn/**'];
+const DEFAULT_PATTERNS = [
+  '**/*.{js,ts,jsx,tsx,json,md,yml,yaml}',
+  '!node_modules/**',
+  '!.yarn/**',
+];
 
 // Get paths from command line arguments or use default patterns
-const paths = process.argv.slice(2).length ? process.argv.slice(2) : DEFAULT_PATTERNS;
+const paths = process.argv.slice(2).length
+  ? process.argv.slice(2)
+  : DEFAULT_PATTERNS;
 
 try {
   console.log('🧹 Formatting files with Prettier...');
