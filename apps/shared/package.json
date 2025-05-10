@@ -1,0 +1,13 @@
+{
+  "name": "shared",
+  "main": "index.ts",
+  "type": "module",
+  "prettier": {
+    "arrowParens": "avoid",
+    "bracketSameLine": true,
+    "bracketSpacing": true,
+    "singleQuote": true,
+    "trailingComma": "all"
+  },
+  "packageManager": "yarn@4.6.0"
+}
