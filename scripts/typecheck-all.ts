@@ -30,9 +30,9 @@ console.log(
 // Type check root
 try {
   console.log(`\n${colors.cyan}Checking root project${colors.reset}`);
-  execSync("tsc --noEmit", { stdio: "inherit", cwd: rootDir });
+  execSync("npx tsc --noEmit", { stdio: "inherit", cwd: rootDir });
   console.log(`${colors.green}✓ Root project passed${colors.reset}`);
-} catch (error) {
+} catch {
   console.error(`${colors.red}✗ Root project failed${colors.reset}`);
   process.exit(1);
 }
@@ -50,9 +50,9 @@ if (existsSync(appsDir)) {
     if (existsSync(tsconfigPath)) {
       console.log(`\n${colors.cyan}Checking app: ${app}${colors.reset}`);
       try {
-        execSync("tsc --noEmit", { stdio: "inherit", cwd: appDir });
+        execSync("npx tsc --noEmit", { stdio: "inherit", cwd: appDir });
         console.log(`${colors.green}✓ App ${app} passed${colors.reset}`);
-      } catch (error) {
+      } catch {
         console.error(`${colors.red}✗ App ${app} failed${colors.reset}`);
         process.exit(1);
       }
@@ -73,9 +73,9 @@ if (existsSync(packagesDir)) {
     if (existsSync(tsconfigPath)) {
       console.log(`\n${colors.cyan}Checking package: ${pkg}${colors.reset}`);
       try {
-        execSync("tsc --noEmit", { stdio: "inherit", cwd: pkgDir });
+        execSync("npx tsc --noEmit", { stdio: "inherit", cwd: pkgDir });
         console.log(`${colors.green}✓ Package ${pkg} passed${colors.reset}`);
-      } catch (error) {
+      } catch {
         console.error(`${colors.red}✗ Package ${pkg} failed${colors.reset}`);
         process.exit(1);
       }

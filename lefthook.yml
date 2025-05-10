@@ -6,7 +6,7 @@ pre-commit:
       run: npx eslint {staged_files}
     typecheck:
       glob: "*.{js,ts,jsx,tsx}"
-      run: yarn typecheck:all
+      run: node scripts/typecheck-all.ts
 commit-msg:
   parallel: true
   commands:

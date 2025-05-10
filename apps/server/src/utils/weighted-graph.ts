@@ -24,8 +24,8 @@ export class PriorityQueue {
     let idx = this.values.length - 1;
     const element = this.values[idx];
     while (idx > 0) {
-      let parentIdx = Math.floor((idx - 1) / 2);
-      let parent = this.values[parentIdx];
+      const parentIdx = Math.floor((idx - 1) / 2);
+      const parent = this.values[parentIdx];
       if (element.priority >= parent.priority) break;
       this.values[parentIdx] = element;
       this.values[idx] = parent;
@@ -46,8 +46,8 @@ export class PriorityQueue {
     const length = this.values.length;
     const element = this.values[0];
     while (true) {
-      let leftChildIdx = 2 * idx + 1;
-      let rightChildIdx = 2 * idx + 2;
+      const leftChildIdx = 2 * idx + 1;
+      const rightChildIdx = 2 * idx + 2;
       let leftChild, rightChild;
       let swap = null;
       if (leftChildIdx < length) {
@@ -117,7 +117,7 @@ export class WeightedGraph {
 
       visited.add(current);
 
-      for (let neighbor of this.adjacencyList[current]) {
+      for (const neighbor of this.adjacencyList[current]) {
         if (!visited.has(neighbor.node)) {
           dfs(neighbor.node, [...path, current], cost + neighbor.weight);
         }
@@ -138,7 +138,7 @@ export class WeightedGraph {
     const previous: Record<string, string | null> = {};
     const paths: Record<string, string[]> = {};
 
-    for (let vertex in this.adjacencyList) {
+    for (const vertex in this.adjacencyList) {
       if (vertex === start) {
         distances[vertex] = 0;
         nodes.enqueue(vertex, 0);
@@ -152,7 +152,7 @@ export class WeightedGraph {
     while (nodes.values.length) {
       const smallest = nodes.dequeue().val;
 
-      for (let neighbor of this.adjacencyList[smallest]) {
+      for (const neighbor of this.adjacencyList[smallest]) {
         const candidate = distances[smallest] + neighbor.weight;
         const nextNeighbor = neighbor.node;
         if (candidate < distances[nextNeighbor]) {
@@ -163,8 +163,8 @@ export class WeightedGraph {
       }
     }
 
-    for (let vertex in distances) {
-      let path: string[] = [];
+    for (const vertex in distances) {
+      const path: string[] = [];
       let current = vertex;
       while (previous[current]) {
         path.push(current);
