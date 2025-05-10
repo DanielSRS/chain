@@ -25,6 +25,9 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
+      - MQTT_HOST=mqtt-broker
+      - MQTT_PORT=9001
+      - MQTT_PATH=/
     restart: unless-stopped
     depends_on:
       - mqtt-broker

@@ -14,3 +14,7 @@
 
 # node modules
 node_modules
+
+# mosquitto
+mosquitto/log/mosquitto.log
+mosquitto/data/mosquitto.db
