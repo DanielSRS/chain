@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
+
 /**
  * A utility script to format specific files or directories with Prettier.
  * Usage: node scripts/format.ts [path1] [path2] ...

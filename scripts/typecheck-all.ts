@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 
 import { execSync } from 'child_process';
 import { existsSync, readdirSync } from 'fs';
