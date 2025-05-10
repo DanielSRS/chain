@@ -10,11 +10,13 @@ const enterAltScreenCommand = '\x1b[?1049h';
 const leaveAltScreenCommand = '\x1b[?1049l';
 const enterAltScreen = () => {
   if (ENABLED) {
+    // eslint-disable-next-line no-console
     console.log(enterAltScreenCommand);
   }
 };
 const leaveAltScreen = () => {
   if (ENABLED) {
+    // eslint-disable-next-line no-console
     console.log(leaveAltScreenCommand);
   }
 };

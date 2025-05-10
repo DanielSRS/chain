@@ -19,7 +19,7 @@ export default defineConfig([
   prettierConfig,
   {
     rules: {
-      // 'no-console': 'error',
+      'no-console': 'error',
     },
   },
 ]);

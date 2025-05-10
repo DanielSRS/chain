@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as http from 'node:http';
 import { consoleTransport, logger } from 'react-native-logs';
 import { LOG_PATH, LOG_SERVER_HOST, LOG_SERVER_PORT } from '../contants.js';
