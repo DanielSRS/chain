@@ -21,13 +21,13 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    
+
     /* No Emit - Only Type Checking */
     "noEmit": true,
-    
+
     /* Interop Constraints */
     "forceConsistentCasingInFileNames": true,
-    
+
     /* Other */
     "skipLibCheck": true
   }

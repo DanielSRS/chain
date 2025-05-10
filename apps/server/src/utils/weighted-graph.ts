@@ -58,9 +58,7 @@ export class PriorityQueue {
         rightChild = this.values[rightChildIdx];
         if (
           (swap === null && rightChild.priority < element.priority) ||
-          (swap !== null &&
-            leftChild &&
-            rightChild.priority < leftChild.priority)
+          (swap !== null && leftChild && rightChild.priority < leftChild.priority)
         ) {
           swap = rightChildIdx;
         }
@@ -175,8 +173,8 @@ export class WeightedGraph {
     }
 
     const sorted: DijkstraResult[] = Object.keys(distances)
-      .filter((v) => v !== start)
-      .map((v) => ({ node: v, distance: distances[v], path: paths[v] }))
+      .filter(v => v !== start)
+      .map(v => ({ node: v, distance: distances[v], path: paths[v] }))
       .sort((a, b) => a.distance - b.distance);
 
     return sorted;

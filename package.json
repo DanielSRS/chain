@@ -9,11 +9,14 @@
   ],
   "scripts": {
     "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "typecheck": "tsc --noEmit",
     "typecheck:watch": "tsc --noEmit --watch",
     "typecheck:all": "node scripts/typecheck-all.ts",
     "update-refs": "node scripts/update-project-refs.ts",
-    "validate": "node scripts/validate-typescript.ts"
+    "validate": "node scripts/validate-typescript.ts",
+    "format": "node scripts/format.ts",
+    "format:check": "prettier --check \"**/*.{js,ts,jsx,tsx,json,md,yml,yaml}\""
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
@@ -22,7 +25,9 @@
     "@react-native/eslint-config": "0.77.1",
     "commitlint": "^17.0.2",
     "eslint": "^9.23.0",
+    "eslint-config-prettier": "^10.1.5",
     "globals": "^16.0.0",
+    "prettier": "^3.5.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.28.0"
   },

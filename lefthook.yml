@@ -1,11 +1,14 @@
 pre-commit:
   parallel: true
   commands:
+    format:
+      glob: '*.{js,ts,jsx,tsx,json,md,yml,yaml}'
+      run: npx prettier --check {staged_files}
     lint:
-      glob: "*.{js,ts,jsx,tsx}"
+      glob: '*.{ts,tsx}'
       run: npx eslint {staged_files}
     typecheck:
-      glob: "*.{js,ts,jsx,tsx}"
+      glob: '*.{ts,tsx}'
       run: node scripts/typecheck-all.ts
 commit-msg:
   parallel: true
