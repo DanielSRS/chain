@@ -15,14 +15,15 @@ services:
 
   server:
     build:
-      context: ./apps/server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/server/Dockerfile
     container_name: elysia-server
     ports:
       - '3000:3000'
+      - '8080:8080'
     volumes:
-      - ./apps/server:/app
-      - /app/node_modules
+      - ./:/workspace
+      - /workspace/node_modules
     environment:
       - NODE_ENV=development
       - MQTT_HOST=mqtt-broker

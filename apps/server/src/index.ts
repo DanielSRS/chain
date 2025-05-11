@@ -1,3 +1,4 @@
+import './server';
 import { Elysia } from 'elysia';
 import Paho from 'paho-mqtt';
 import { Logger } from './utils/logger';
