@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mqtt-broker:
     image: eclipse-mosquitto:latest
@@ -33,6 +31,30 @@ services:
     depends_on:
       - mqtt-broker
 
+  car:
+    build:
+      context: .
+      dockerfile: ./apps/car/Dockerfile
+    container_name: car-app
+    stdin_open: true
+    tty: true
+    ports:
+      - '3001:3001' # Adjust port if needed
+    volumes:
+      - ./:/workspace
+      - car-builder-modules:/workspace/node_modules
+      - car-builder-car-modules:/workspace/apps/car/node_modules
+    environment:
+      - NODE_ENV=development
+      - MQTT_HOST=mqtt-broker
+      - MQTT_PORT=9001
+      - MQTT_PATH=/
+      - SERVER_HOST=server
+    restart: unless-stopped
+    depends_on:
+      - mqtt-broker
+      - server
+
   # Service to install dependencies for type support in the editor
   deps-installer:
     image: node:18-alpine
@@ -46,3 +68,37 @@ services:
       - ./:/workspace
     profiles:
       - deps
+
+  carr:
+    image: node:24-alpine
+    container_name: car-run
+    working_dir: /workspace/apps/car
+    command: >
+      sh -c "cd /workspace/apps/car &&
+             echo 'Running built car application...' &&
+             node dist/shared/src/utils/logServer.js"
+    volumes:
+      - ./:/workspace
+      - /workspace/node_modules
+      - car-builder-modules:/workspace/node_modules
+      - car-builder-car-modules:/workspace/apps/car/node_modules
+    environment:
+      - NODE_ENV=development
+      - MQTT_HOST=mqtt-broker
+      - MQTT_PORT=9001
+      - MQTT_PATH=/
+      - SERVER_HOST=server
+    restart: no
+    # Enable interactive mode
+    stdin_open: true
+    tty: true
+    depends_on:
+      - mqtt-broker
+      - server
+      - car
+    profiles:
+      - runner
+
+volumes:
+  car-builder-modules:
+  car-builder-car-modules:
