@@ -1,10 +1,10 @@
-import { connectionSchema } from '../schemas/connection.js';
-import { curry } from '../utils/curry.js';
+import { connectionSchema } from '../schemas/connection.ts';
+import { curry } from '../utils/curry.ts';
 import type {
   ApiRequestHandler,
   RequestResponseMap,
   Request,
-} from '../utils/types.js';
+} from '../utils/types.ts';
 
 export type ServerRouter = (request: Request) => () => void;
 

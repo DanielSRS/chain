@@ -1,11 +1,11 @@
-import { curry } from '../utils/curry';
-import { Logger } from '../utils/logger';
+import { curry } from '../utils/curry.ts';
+import { Logger } from '../utils/logger.ts';
 import {
   ERROR_CODES,
   type ChargeRecord,
   type RequestHandler,
   type UserGroup,
-} from '../utils/types';
+} from '../utils/types.ts';
 
 type Handler = RequestHandler<'rechargeList'>;
 

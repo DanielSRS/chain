@@ -1,4 +1,4 @@
-import { curry } from '../utils/curry';
+import { curry } from '../utils/curry.ts';
 import {
   ERROR_CODES,
   type ChargeRecord,
@@ -6,7 +6,7 @@ import {
   type Station,
   type StationGroup,
   type UserGroup,
-} from '../utils/types';
+} from '../utils/types.ts';
 
 // ------
 

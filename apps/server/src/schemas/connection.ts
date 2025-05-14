@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { carSchema } from './carSchema';
-import { stationSchema } from './stationSchema';
-import { userSchema } from './userSchema';
+import { carSchema } from './carSchema.ts';
+import { stationSchema } from './stationSchema.ts';
+import { userSchema } from './userSchema.ts';
 
 export const connectionSchema = z.discriminatedUnion('type', [
   z.object({

@@ -1,4 +1,4 @@
-import type { ChargeRecord, StationGroup, UserGroup } from '../utils/types';
+import type { ChargeRecord, StationGroup, UserGroup } from '../utils/types.ts';
 
 export const STATIONS: StationGroup = {
   2: {

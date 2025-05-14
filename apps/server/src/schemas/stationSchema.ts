@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { locationSchema } from './locationSchema';
+import { locationSchema } from './locationSchema.ts';
 
 export const stationSchema = z.object({
   id: z.number(),

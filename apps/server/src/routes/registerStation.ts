@@ -1,5 +1,5 @@
-import { curry } from '../utils/curry';
-import { type RequestHandler, type StationGroup } from '../utils/types';
+import { curry } from '../utils/curry.ts';
+import { type RequestHandler, type StationGroup } from '../utils/types.ts';
 
 type Handler = RequestHandler<'registerStation'>;
 

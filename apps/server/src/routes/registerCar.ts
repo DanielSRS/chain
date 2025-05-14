@@ -1,10 +1,10 @@
-import { curry } from '../utils/curry';
+import { curry } from '../utils/curry.ts';
 import {
   type RequestHandler,
   type User,
   type Response,
   type UserGroup,
-} from '../utils/types';
+} from '../utils/types.ts';
 
 type Handler = RequestHandler<'registerUser'>;
 

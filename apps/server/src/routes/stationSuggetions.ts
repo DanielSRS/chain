@@ -1,11 +1,11 @@
-import { calcRecomendations } from '../main';
-import { curry } from '../utils/curry';
+import { calcRecomendations } from '../main.ts';
+import { curry } from '../utils/curry.ts';
 import {
   filterStationsByDistanceRadius,
   type Car,
   type RequestHandler,
   type StationGroup,
-} from '../utils/types';
+} from '../utils/types.ts';
 
 type Handler = RequestHandler<'getSuggestions'>;
 

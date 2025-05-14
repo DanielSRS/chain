@@ -1,9 +1,9 @@
-import { curry } from '../utils/curry';
+import { curry } from '../utils/curry.ts';
 import {
   ERROR_CODES,
   type RequestHandler,
   type StationGroup,
-} from '../utils/types';
+} from '../utils/types.ts';
 
 type Handler = RequestHandler<'getStationInfo'>;
 

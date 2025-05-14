@@ -1,16 +1,16 @@
 import * as net from 'node:net';
-import { Logger } from './utils/logger';
-import { createRouter } from './routes/router';
-import { reserve } from './routes/reserve';
-import { getSuggestions } from './routes/stationSuggetions';
-import { CHARGES, STATIONS, USERS } from './data/data';
-import { registerStation } from './routes/registerStation';
-import { registerUser } from './routes/registerCar';
-import { startCharging } from './routes/startCharging';
-import { endCharging } from './routes/endCharging';
-import { rechargeList } from './routes/rechargeList';
-import { getStationInfo } from './routes/getStationInfo';
-import { payment } from './routes/payment';
+import { Logger } from './utils/logger.ts';
+import { createRouter } from './routes/router.ts';
+import { reserve } from './routes/reserve.ts';
+import { getSuggestions } from './routes/stationSuggetions.ts';
+import { CHARGES, STATIONS, USERS } from './data/data.ts';
+import { registerStation } from './routes/registerStation.ts';
+import { registerUser } from './routes/registerCar.ts';
+import { startCharging } from './routes/startCharging.ts';
+import { endCharging } from './routes/endCharging.ts';
+import { rechargeList } from './routes/rechargeList.ts';
+import { getStationInfo } from './routes/getStationInfo.ts';
+import { payment } from './routes/payment.ts';
 
 const HOST = '0.0.0.0';
 const PORT = 8080;

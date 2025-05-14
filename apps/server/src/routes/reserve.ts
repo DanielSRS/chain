@@ -1,10 +1,10 @@
-import { curry } from '../utils/curry';
+import { curry } from '../utils/curry.ts';
 import {
   ERROR_CODES,
   type RequestHandler,
   type StationGroup,
   type UserGroup,
-} from '../utils/types';
+} from '../utils/types.ts';
 type Handler = RequestHandler<'reserve'>;
 
 export const reserve = curry(
