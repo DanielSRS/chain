@@ -1250,6 +1250,7 @@ __metadata:
     elysia: "npm:latest"
     paho-mqtt: "npm:^1.1.0"
     react-native-logs: "npm:^5.3.0"
+    xstate: "npm:4.38.3"
     zod: "npm:3.24.2"
   languageName: unknown
   linkType: soft
@@ -5931,6 +5932,13 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: 10c0/4b50f67931b8c6943c893f59c524f0e4905bbd183016cfb0f2b8653aa7f28dad4e456b9d99d285bbb67cca4fedd9ce90dfdfaa82b898a11414ebd66ee99141e4
+  languageName: node
+  linkType: hard
+
+"xstate@npm:4.38.3":
+  version: 4.38.3
+  resolution: "xstate@npm:4.38.3"
+  checksum: 10c0/8a2063743517390107275113bca0e757dba99102e7d57d40cf656b5cc03a6f2c5e10fbf3752294d9d29fbe1d8757bb9a54f54c934a22f205a237956dd10dcd0f
   languageName: node
   linkType: hard
 
