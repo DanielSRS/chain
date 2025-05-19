@@ -64,7 +64,6 @@ mqttClient.connect({
 const app = new Elysia()
   .decorate('machine', interpret(paxos).start())
   .get('/', () => 'Hello Elysia')
-  .listen(SERVER_PORT)
   .post(
     '/event',
     ({ body, machine }) => {
@@ -82,6 +81,7 @@ const app = new Elysia()
       }),
       response: t.String(),
     },
-  );
+  )
+  .listen(SERVER_PORT);
 
 log.info(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`);
