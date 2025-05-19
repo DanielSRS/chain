@@ -57,6 +57,7 @@ export const paxos = createMachine({
     },
 
     Acceptor: {
+      initial: 'idle',
       states: {
         PROMISE: {
           entry: ['sendPromiseResponse', 'savePromise'],
