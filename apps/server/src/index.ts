@@ -1,13 +1,16 @@
 import './server';
-import { Elysia } from 'elysia';
+import { Elysia, t } from 'elysia';
 import Paho from 'paho-mqtt';
 import { Logger } from './utils/logger.ts';
+import { interpret } from 'xstate';
+import { paxos } from './utils/paxos.ts';
 
 const log = Logger.extend('Server');
 
 const mqttHost = process.env.MQTT_HOST || 'localhost';
 const mqttPort = parseInt(process.env.MQTT_PORT || '9001');
 const wsPath = process.env.MQTT_PATH || '/';
+const SERVER_PORT = parseInt(process.env.SERVER_PORT || '3000');
 
 log.info(
   `Connecting to MQTT broker at ${mqttHost}:${mqttPort} with path ${wsPath}`,
@@ -58,6 +61,27 @@ mqttClient.connect({
   timeout: 10,
 });
 
-const app = new Elysia().get('/', () => 'Hello Elysia').listen(3000);
+const app = new Elysia()
+  .decorate('machine', interpret(paxos).start())
+  .get('/', () => 'Hello Elysia')
+  .listen(SERVER_PORT)
+  .post(
+    '/event',
+    ({ body, machine }) => {
+      const { event } = body;
+      log.info('Received event:', event);
+      const res = machine.send(event);
+      return res.value.toString();
+    },
+    {
+      body: t.Object({
+        event: t.Object({
+          type: t.Literal('PROMISE'),
+          data: t.Any(),
+        }),
+      }),
+      response: t.String(),
+    },
+  );
 
 log.info(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`);
