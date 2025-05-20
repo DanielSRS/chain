@@ -15,11 +15,11 @@ type TabName = 'general' | 'foo' | 'bar' | 'baz' | 'about';
 
 const TABS = {
   about: {
-    name: 'About',
+    name: 'Sobre',
     component: () => <About />,
   },
   bar: {
-    name: 'Recomendations',
+    name: 'Recomendações',
     component: () => (
       <Computed>
         {() => {
@@ -57,11 +57,11 @@ const TABS = {
     ),
   },
   foo: {
-    name: 'Charging',
+    name: 'Carregamento',
     component: () => <Charging />,
   },
   general: {
-    name: 'General',
+    name: 'Geral',
     component: () => (
       <Computed>{() => <General car={SharedData.car.get()!} />}</Computed>
     ),
