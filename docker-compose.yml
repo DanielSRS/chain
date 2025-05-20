@@ -88,6 +88,7 @@ services:
       - MQTT_PORT=9001
       - MQTT_PATH=/
       - SERVER_HOST=server
+      - LOG_SERVER_HOST=logs
     restart: no
     # Enable interactive mode
     stdin_open: true
@@ -96,6 +97,32 @@ services:
       - mqtt-broker
       - server
       - car
+    profiles:
+      - runner
+
+  logs:
+    image: node:24-alpine
+    container_name: logs
+    ports:
+      - '3519:3519'
+    working_dir: /workspace/apps/car
+    command: >
+      sh -c "cd /workspace/apps/car &&
+             echo 'Running built car application...' &&
+             node dist/shared/src/utils/logServer.js"
+    volumes:
+      - ./:/workspace
+      - /workspace/node_modules
+      - car-builder-modules:/workspace/node_modules
+      - car-builder-car-modules:/workspace/apps/car/node_modules
+    environment:
+      - NODE_ENV=development
+      - MQTT_HOST=mqtt-broker
+      - MQTT_PORT=9001
+      - MQTT_PATH=/
+      - SERVER_HOST=server
+      - LOG_SERVER_HOST=0.0.0.0
+    restart: no
     profiles:
       - runner
 
