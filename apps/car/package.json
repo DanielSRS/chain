@@ -11,7 +11,7 @@
     "build": "tsc",
     "build_and_run": "yarn build && yarn start",
     "dev": "tsc --watch",
-    "start": "node dist/car/src/app.js",
+    "start": "node --watch dist/car/src/app.js",
     "logs": "node dist/shared/src/utils/logServer.js"
   },
   "files": [
