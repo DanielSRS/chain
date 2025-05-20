@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Tabs, Tab } from 'ink-tab';
 import { FLEX1 } from './constants.js';
 import { Recomendations } from './Pages/Recomendations/Recomendations.js';
-import { Computed } from '@legendapp/state/react';
+import { Computed, Memo } from '@legendapp/state/react';
 import { SharedData } from './store/shared-data.js';
 import { ReserveStation } from './Pages/ReserveStation/ReserveStation.js';
 import { Charging } from './Pages/Charging/Charging.js';
@@ -14,42 +14,66 @@ import { PaymentRoutes } from './routes/payment-routes.js';
 type TabName = 'general' | 'foo' | 'bar' | 'baz' | 'about';
 
 const TABS = {
-  about: <About />,
-  bar: (
-    <Computed>
-      {() => {
-        const location = SharedData.car.location.get();
-        const car = SharedData.car.get();
-        const selectedStation = SharedData.selectedStation.get();
-        if (!location || !car) {
-          return null;
-        }
-        if (selectedStation) {
+  about: {
+    name: 'About',
+    component: () => <About />,
+  },
+  bar: {
+    name: 'Recomendations',
+    component: () => (
+      <Computed>
+        {() => {
+          const location = SharedData.car.location.get();
+          const car = SharedData.car.get();
+          const selectedStation = SharedData.selectedStation.get();
+          if (!location || !car) {
+            return null;
+          }
+          if (selectedStation) {
+            return (
+              <ReserveStation
+                station={selectedStation}
+                onGoBack={() => SharedData.selectedStation.set(undefined)}
+                car={car}
+              />
+            );
+          }
           return (
-            <ReserveStation
-              station={selectedStation}
-              onGoBack={() => SharedData.selectedStation.set(undefined)}
-              car={car}
+            <Recomendations
+              location={location}
+              onSelectStation={SharedData.selectedStation.set}
             />
           );
-        }
-        return (
-          <Recomendations
-            location={location}
-            onSelectStation={SharedData.selectedStation.set}
-          />
-        );
-      }}
-    </Computed>
-  ),
-  baz: (
-    <View style={{ ...FLEX1, paddingTop: 0 }}>
-      <PaymentRoutes />
-    </View>
-  ),
-  foo: <Charging />,
-  general: <Computed>{() => <General car={SharedData.car.get()!} />}</Computed>,
-} satisfies Record<TabName, React.ReactNode>;
+        }}
+      </Computed>
+    ),
+  },
+  baz: {
+    name: 'Pagamento',
+    component: () => (
+      <View style={{ ...FLEX1, paddingTop: 0 }}>
+        <PaymentRoutes />
+      </View>
+    ),
+  },
+  foo: {
+    name: 'Charging',
+    component: () => <Charging />,
+  },
+  general: {
+    name: 'General',
+    component: () => (
+      <Computed>{() => <General car={SharedData.car.get()!} />}</Computed>
+    ),
+  },
+} satisfies Record<TabName, TabContent>;
+
+type TabContent = {
+  name: string;
+  component: () => React.ReactNode;
+};
+
+const tabs = Object.entries(TABS);
 
 export function TabNavigation() {
   const [activeTabName, setActiveTabName] = useState<TabName>('general');
@@ -65,23 +89,41 @@ export function TabNavigation() {
     setActiveTabName(name as TabName);
   }
 
-  const ActiveTabContent = useMemo(() => TABS[activeTabName], [activeTabName]);
-
   return (
     <View style={FLEX1}>
       <Tabs
         onChange={handleTabChange}
         defaultValue="general"
+        children={tabs.map(([key, tab]) => {
+          return (
+            <Tab key={key} name={key}>
+              {tab.name}
+            </Tab>
+          );
+        })}
         keyMap={{
           useTab: false,
-        }}>
-        <Tab name="general">General</Tab>
-        <Tab name="foo">Charging</Tab>
-        <Tab name="bar">Recomendations</Tab>
-        <Tab name="baz">Pagamento</Tab>
-        <Tab name="about">About</Tab>
-      </Tabs>
-      {ActiveTabContent}
+        }}
+      />
+      <>
+        {tabs.map(([key, { component: Tab }]) => {
+          const isActive = activeTabName === key;
+          return (
+            <View
+              key={key}
+              style={{
+                display: isActive ? 'flex' : 'none',
+                position: isActive ? 'relative' : 'absolute',
+                ...FLEX1,
+              }}>
+              <Memo>
+                <Tab />
+              </Memo>
+            </View>
+          );
+        })}
+      </>
+      {/* <View style={FLEX1}>{ActiveTabContent}</View> */}
     </View>
   );
 }
