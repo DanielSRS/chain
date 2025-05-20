@@ -57,11 +57,12 @@ services:
 
   # Service to install dependencies for type support in the editor
   deps-installer:
-    image: node:18-alpine
+    image: node:24-alpine
     container_name: deps-installer
     working_dir: /workspace
     command: >
       sh -c "cd /workspace &&
+             corepack enable yarn &&
              yarn install &&
              echo 'Dependencies installed successfully for editor type support'"
     volumes:
