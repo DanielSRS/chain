@@ -19,7 +19,7 @@ async function getTravelData() {
 
 function getCities() {
   // eslint-disable-next-line no-async-promise-executor
-  return new Promise<{ cities: string[] }>(async (resolve, reject) => {
+  return new Promise<{ cities: readonly string[] }>(async (resolve, reject) => {
     const res = await getTravelData();
     if (!res.success) {
       reject(res.error);

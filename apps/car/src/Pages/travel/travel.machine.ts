@@ -6,14 +6,14 @@ type Events =
   | { type: 'SELECT_DESTINATION'; data: { destination: string } };
 
 type Services = {
-  getCities: { data: { cities: string[] } };
+  getCities: { data: { cities: readonly string[] } };
   getAvaliableRoutes: { data: { routes: 'fsn' } };
 };
 
 type Context = {
   departure: string;
   destination: string;
-  cities: string[];
+  cities: readonly string[];
   getCitiesError: unknown;
   routes: unknown;
   routesError: unknown;
