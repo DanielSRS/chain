@@ -6,10 +6,22 @@ export type MqttApiEndpointsMap = {
     /**
      * List of cities
      */
-    responseData: string[];
+    responseData: readonly string[];
   };
 };
 export type MqttApiEndpointsKeys = keyof MqttApiEndpointsMap;
+
+export type MqttApiRequestHandler<K extends MqttApiEndpointsKeys> = (
+  data: MqttApiEndpointsMap[K]['requestData'],
+) => {
+  data: MqttApiEndpointsMap[K]['responseData'];
+  responseTopic: MqttApiEndpointsMap[K]['responseTopic'];
+};
+
+export type MqttApiRequest = {
+  type: MqttApiEndpointsKeys;
+  data: MqttApiEndpointsMap[MqttApiEndpointsKeys]['requestData'];
+};
 
 // export type MqttApiEndpoints = {
 //   [K in keyof MqttApiEndpointsMap]: {
