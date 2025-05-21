@@ -3,12 +3,14 @@ import { paxos } from './utils/paxos.ts';
 import { Logger } from './utils/logger.ts';
 import { Elysia, t } from 'elysia';
 import { interpret } from 'xstate';
+import { mqttClient } from './mqtt-server.ts';
 
 const log = Logger.extend('Server');
 const SERVER_PORT = parseInt(process.env.SERVER_PORT || '3000');
 
 const app = new Elysia()
   .decorate('machine', interpret(paxos).start())
+  .decorate('mqttClient', mqttClient)
   .get('/', () => 'Hello Elysia')
   .post(
     '/event',

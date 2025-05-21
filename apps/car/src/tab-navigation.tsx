@@ -10,8 +10,9 @@ import { View } from '../../shared/index.js';
 import { About } from './Pages/about/about.js';
 import { General } from './Pages/geeneral/general.js';
 import { PaymentRoutes } from './routes/payment-routes.js';
+import { TravelPage } from './Pages/travel/travel.nav.js';
 
-type TabName = 'general' | 'foo' | 'bar' | 'baz' | 'about';
+type TabName = 'general' | 'foo' | 'bar' | 'baz' | 'about' | 'travel';
 
 const TABS = {
   about: {
@@ -65,6 +66,10 @@ const TABS = {
     component: () => (
       <Computed>{() => <General car={SharedData.car.get()!} />}</Computed>
     ),
+  },
+  travel: {
+    name: 'Viagem',
+    component: TravelPage,
   },
 } satisfies Record<TabName, TabContent>;
 

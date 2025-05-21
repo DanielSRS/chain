@@ -1,12 +1,11 @@
 import Paho from 'paho-mqtt';
-import { Logger } from './utils/logger.ts';
-import { CITIES } from './utils/cities.ts';
+import { Logger } from '../../../shared/index.js';
 
-const mqttHost = process.env.MQTT_HOST || 'localhost';
-const mqttPort = parseInt(process.env.MQTT_PORT || '9001');
-const wsPath = process.env.MQTT_PATH || '/';
+const mqttHost = process.env['MQTT_HOST'] || 'localhost';
+const mqttPort = parseInt(process.env['MQTT_PORT'] || '9001');
+const wsPath = process.env['MQTT_PATH'] || '/';
 
-const log = Logger.extend('MQTT-Server');
+const log = Logger.extend('MQTT-client');
 
 log.info(
   `Connecting to MQTT broker at ${mqttHost}:${mqttPort} with path ${wsPath}`,
@@ -19,6 +18,32 @@ export const mqttClient = new Paho.Client(
   Date.now().toString() + 'Server',
 );
 
+export const topicListners: {
+  [key: string]: Array<(msg: Paho.Message) => void>;
+} = {};
+
+export const sendMessageToListeners = (
+  channelName: string,
+  message: Paho.Message,
+) => {
+  const channels = topicListners[channelName];
+
+  channels?.forEach(listner => listner(message));
+};
+
+export const addTopiclListner = (
+  channelName: string,
+  callbackFunction: (msg: Paho.Message) => void,
+) => {
+  const channel = topicListners[channelName];
+  if (channel) {
+    channel.push(callbackFunction);
+    return;
+  }
+
+  topicListners[channelName] = [callbackFunction];
+};
+
 mqttClient.onConnectionLost = responseObject => {
   if (responseObject.errorCode !== 0) {
     log.warn('MQTT connection lost: ' + responseObject.errorMessage);
@@ -26,14 +51,12 @@ mqttClient.onConnectionLost = responseObject => {
 };
 
 mqttClient.onMessageArrived = message => {
-  log.info(
+  log.debug(
     'Message arrived at topic: ',
     message.destinationName,
     message.payloadString,
   );
-  if (message.destinationName === 'cities') {
-    mqttClient.send('cities/response', JSON.stringify(CITIES), 2);
-  }
+  sendMessageToListeners(message.destinationName, message);
 };
 
 const topicSubscriptionSuccess = (topic: string) => () => {
