@@ -33,9 +33,7 @@ export function Travel() {
             reject(res.error);
             return;
           }
-          const data = z
-            .array(z.string())
-            .safeParse(JSON.parse(res.data.payloadString));
+          const data = z.array(z.string()).safeParse(res.data);
           if (data.success) {
             resolve({ cities: data.data });
           } else {

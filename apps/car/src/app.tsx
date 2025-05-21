@@ -6,6 +6,9 @@ import { saveNewUser, SharedData } from './store/shared-data.js';
 import { use$ } from '@legendapp/state/react';
 import { TabNavigation } from './tab-navigation.js';
 import { carBatteryService } from './store/services.js';
+import { NOOPMqttClientSetup } from './api/mqtt-client.js';
+
+NOOPMqttClientSetup();
 
 export default function App() {
   const { exit } = useApp();
