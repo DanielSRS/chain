@@ -6,7 +6,6 @@ import { useTravelData } from './travel.data.js';
 import SelectInput from 'ink-select-input';
 import { TravelMachine } from './travel.machine.js';
 import { useMachine } from '@xstate/react';
-import { z } from 'zod';
 
 const log = Logger.extend('TravelPage');
 
@@ -23,34 +22,11 @@ const log = Logger.extend('TravelPage');
  * It shows the cost of each route.
  */
 export function Travel() {
-  const { getTravelData } = useTravelData();
+  const { getCities, getAvaliableRoutes } = useTravelData();
   const [state, send] = useMachine(TravelMachine, {
     services: {
-      getCities: () => {
-        return new Promise(async (resolve, reject) => {
-          const res = await getTravelData();
-          if (!res.success) {
-            reject(res.error);
-            return;
-          }
-          const data = z.array(z.string()).safeParse(res.data);
-          if (data.success) {
-            resolve({ cities: data.data });
-          } else {
-            log.error('Invalid travel data', data);
-            reject(data);
-          }
-        });
-      },
-      getAvaliableRoutes: () => {
-        return new Promise(async resolve => {
-          setTimeout(() => {
-            resolve({
-              routes: 'fsn',
-            });
-          }, 2001);
-        });
-      },
+      getCities,
+      getAvaliableRoutes,
     },
   });
   const [showDepartureOptions, setShowDepartureOptions] = React.useState(false);
