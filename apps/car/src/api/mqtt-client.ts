@@ -7,7 +7,7 @@ import {
 import type {
   MqttApiEndpointsKeys,
   MqttApiEndpointsMap,
-} from './mqtt-client.types.js';
+} from '../../../shared/src/api/mqtt-client.types.js';
 type HHH<ResponseData extends object> =
   | { success: true; data: ResponseData }
   | {
