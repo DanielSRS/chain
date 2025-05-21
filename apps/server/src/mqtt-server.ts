@@ -1,6 +1,7 @@
 import Paho from 'paho-mqtt';
 import { Logger } from './utils/logger.ts';
 import { CITIES } from './utils/cities.ts';
+import { createRouter } from './routes/mqtt-router.ts';
 
 const mqttHost = process.env.MQTT_HOST || 'localhost';
 const mqttPort = parseInt(process.env.MQTT_PORT || '9001');
@@ -31,9 +32,17 @@ mqttClient.onMessageArrived = message => {
     message.destinationName,
     message.payloadString,
   );
-  if (message.destinationName === 'cities') {
-    mqttClient.send('cities/response', JSON.stringify(CITIES), 2);
+  const router = createRouter().add('cities', () => ({
+    data: CITIES,
+    responseTopic: 'cities/response',
+  }));
+
+  const response = router.validateAndDispach(message);
+  if (!response) {
+    log.error('No response found for topic: ', message.destinationName);
+    return;
   }
+  mqttClient.send(response.responseTopic, JSON.stringify(response.data), 2);
 };
 
 const topicSubscriptionSuccess = (topic: string) => () => {
