@@ -4,9 +4,11 @@ import { Logger } from './utils/logger.ts';
 import { Elysia, t } from 'elysia';
 import { interpret } from 'xstate';
 import { mqttClient } from './mqtt-server.ts';
+// import ip from 'ip';
 
 const log = Logger.extend('Server');
 const SERVER_PORT = parseInt(process.env.SERVER_PORT || '3000');
+// const JOIN_SERVER_IP = process.env.JOIN_SERVER_IP;
 
 const app = new Elysia()
   .decorate('machine', interpret(paxos).start())
