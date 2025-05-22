@@ -1,5 +1,10 @@
 import { assign, createMachine } from 'xstate';
 
+export interface PathResult {
+  path: string[];
+  cost: number;
+}
+
 type Events =
   | { type: 'RETRY' }
   | { type: 'SELECT_DEPARTURE'; data: { departure: string } }
@@ -7,7 +12,7 @@ type Events =
 
 type Services = {
   getCities: { data: { cities: readonly string[] } };
-  getAvaliableRoutes: { data: { routes: 'fsn' } };
+  getAvaliableRoutes: { data: { routes: readonly PathResult[] } };
 };
 
 type Context = {
@@ -15,7 +20,7 @@ type Context = {
   destination: string;
   cities: readonly string[];
   getCitiesError: unknown;
-  routes: unknown;
+  routes: readonly PathResult[];
   routesError: unknown;
 };
 

@@ -1,11 +1,12 @@
 import React from 'react';
+import SelectInput from 'ink-select-input';
 import { Logger, View } from '../../../../shared/index.js';
 import { Text, useFocus, useInput } from 'ink';
 import { FLEX1 } from '../../../../shared/src/utils/constants.js';
 import { useTravelData } from './travel.data.js';
-import SelectInput from 'ink-select-input';
 import { TravelMachine } from './travel.machine.js';
 import { useMachine } from '@xstate/react';
+import { RoutesList } from './components/routes-list.js';
 
 const log = Logger.extend('TravelPage');
 
@@ -40,6 +41,14 @@ export function Travel() {
   const failedToLoadCities = state.matches('GetCitiesFailed');
   const canShowDepartureOptions =
     state.matches('CitiesLoaded') && showDepartureOptions;
+
+  const showRoutes =
+    state.matches('CitiesLoaded.Routes.RoutesLoaded') &&
+    !showDepartureOptions &&
+    !showDestinationOptions;
+  const routes = state.context.routes;
+
+  log.debug('Travel page state', state.value);
 
   if (loadingCities) {
     return (
@@ -78,9 +87,9 @@ export function Travel() {
     <View
       style={{
         ...FLEX1,
-        borderStyle: 'single',
+        // borderStyle: 'single',
 
-        borderColor: 'white',
+        // borderColor: 'white',
       }}>
       <View
         style={{
@@ -88,13 +97,14 @@ export function Travel() {
           alignItems: 'center',
         }}>
         <TravelButton
+          disabled={showRoutes}
           text={departure ? 'Origem: ' + departure : 'Origem'}
           onPress={async () => {
             setShowDepartureOptions(true);
           }}
         />
         <TravelButton
-          disabled={!!departure}
+          disabled={!!departure || showRoutes}
           text={destination ? 'Destino: ' + destination : 'Destino'}
           onPress={async () => {
             setShowDestinationOptions(true);
@@ -160,6 +170,8 @@ export function Travel() {
       ) : (
         <></>
       )}
+
+      {showRoutes ? <RoutesList routes={routes} /> : <></>}
     </View>
   );
 }
