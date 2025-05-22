@@ -19,6 +19,13 @@ export const mqttConnectionSchema = z.discriminatedUnion('type', [
     type: z.literal('cities'),
     data: z.object({}),
   }),
+  z.object({
+    type: z.literal('routes'),
+    data: z.object({
+      departure: z.string(),
+      destination: z.string(),
+    }),
+  }),
 ]);
 
 export function createRouter() {

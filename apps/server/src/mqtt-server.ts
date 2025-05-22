@@ -1,7 +1,9 @@
 import Paho from 'paho-mqtt';
 import { Logger } from './utils/logger.ts';
-import { CITIES } from './utils/cities.ts';
+import { CITIES, type City } from './utils/cities.ts';
 import { createRouter } from './routes/mqtt-router.ts';
+import { ComputedRoutes } from './utils/computed-routes.ts';
+import type { MqttApiEndpointsKeys } from './utils/types.ts';
 
 const mqttHost = process.env.MQTT_HOST || 'localhost';
 const mqttPort = parseInt(process.env.MQTT_PORT || '9001');
@@ -32,10 +34,15 @@ mqttClient.onMessageArrived = message => {
     message.destinationName,
     message.payloadString,
   );
-  const router = createRouter().add('cities', () => ({
-    data: CITIES,
-    responseTopic: 'cities/response',
-  }));
+  const router = createRouter()
+    .add('cities', () => ({
+      data: CITIES,
+      responseTopic: 'cities/response',
+    }))
+    .add('routes', ({ departure, destination }) => ({
+      data: ComputedRoutes[departure as City][destination as City],
+      responseTopic: 'routes/response',
+    }));
 
   const response = router.validateAndDispach(message);
   if (!response) {
@@ -56,9 +63,13 @@ const topicSubscriptionError =
 mqttClient.connect({
   onSuccess: () => {
     log.info('Connected to MQTT broker successfully');
-    mqttClient.subscribe('cities', {
-      onSuccess: topicSubscriptionSuccess('cities'),
-      onFailure: topicSubscriptionError('cities'),
+    // subscribe to topics exposed as endpoints
+    const endpointsTopics: MqttApiEndpointsKeys[] = ['cities', 'routes'];
+    endpointsTopics.forEach(topic => {
+      mqttClient.subscribe(topic, {
+        onSuccess: topicSubscriptionSuccess(topic),
+        onFailure: topicSubscriptionError(topic),
+      });
     });
   },
   onFailure: error => {

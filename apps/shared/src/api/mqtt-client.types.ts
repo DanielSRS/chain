@@ -1,3 +1,8 @@
+export interface PathResult {
+  path: string[];
+  cost: number;
+}
+
 export type MqttApiEndpointsMap = {
   cities: {
     requestTopic: 'cities';
@@ -8,7 +13,20 @@ export type MqttApiEndpointsMap = {
      */
     responseData: readonly string[];
   };
+  routes: {
+    requestTopic: 'routes';
+    responseTopic: 'routes/response';
+    requestData: {
+      departure: string;
+      destination: string;
+    };
+    /**
+     * List of routes
+     */
+    responseData: readonly PathResult[];
+  };
 };
+
 export type MqttApiEndpointsKeys = keyof MqttApiEndpointsMap;
 
 export type MqttApiRequestHandler<K extends MqttApiEndpointsKeys> = (
