@@ -5,7 +5,7 @@ import { saveUserToStorage, SharedData } from '../store/shared-data.js';
  * Discharge the battery, but only if it's not already at 0 or charging
  */
 export function dischargeBattery() {
-  Logger.info('Discharge battery');
+  // Logger.info('Discharge battery');
   const isCharging = !!SharedData.chargingCar.peek();
 
   /**
