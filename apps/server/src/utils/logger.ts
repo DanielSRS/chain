@@ -10,3 +10,5 @@ export const Logger = logger.createLogger({
     },
   },
 });
+
+export type ExtendedLogger = ReturnType<typeof Logger.extend>;

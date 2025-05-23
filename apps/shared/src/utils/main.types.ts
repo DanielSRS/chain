@@ -105,6 +105,8 @@ export type Station = {
    * Localização da estação no sistema de coordenadas.
    */
   location: Position;
+  city: string;
+  companyId: string;
   /**
    * Fila de espera da estação.
    * A fila de espera é uma lista de ids de usuários que
@@ -187,6 +189,8 @@ export function Station(
       x,
       y,
     },
+    city: 'Feira de Santana',
+    companyId: '234WFSW#$',
     reservations: [],
     suggestions: [],
   };

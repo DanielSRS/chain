@@ -33,3 +33,5 @@ coverage
 # Docker volume mounts
 mosquitto/data/*
 mosquitto/log/*
+
+computed-routes.json
