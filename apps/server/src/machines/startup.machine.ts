@@ -195,6 +195,7 @@ export const startupMachine = createMachine(
           })
           .catch(e => {
             context.log.error('Error sending join request: ', e);
+            throw e;
           });
         return res;
       },
