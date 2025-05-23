@@ -1,7 +1,10 @@
 import { z } from 'zod';
+import type { City } from '../utils/cities.ts';
+import type { Station, StationGroup } from '../utils/types.ts';
 
 export interface Company {
   readonly name: string;
+  readonly id: string;
   readonly address: string;
 }
 
@@ -18,7 +21,8 @@ type CommitType =
   | 'CONFIRM'
   | 'REJECT'
   | 'ABORT'
-  | 'COMMIT';
+  | 'GROUP_CREATION'
+  | 'APROVE_MEMBER_JOIN';
 
 interface CommitTypeMap {
   RESERVE_STATION: {
@@ -84,6 +88,16 @@ interface CommitTypeMap {
     transactionId: string;
     commitId: string;
   };
+  APROVE_MEMBER_JOIN: {
+    company: Company;
+    stations: Record<number, Station>;
+  };
+  GROUP_CREATION: {
+    creationDate: number;
+    members: Array<Company>;
+    // commits: CommitIndex;s
+    stations: Record<City, Station[]>;
+  };
 }
 
 export interface Commit<
@@ -99,6 +113,10 @@ export interface Commit<
   readonly previousCommitId: string;
 }
 
+type GroupCreationCommit = Commit<'GROUP_CREATION'> & {
+  previousCommitId: 'none';
+};
+
 export interface CommitIndex {
   firstCommitId: string;
   lastCommitId: string;
@@ -107,8 +125,70 @@ export interface CommitIndex {
   commitRegistryByIndex: Record<number, Commit>;
 }
 
+export interface CompanyStationsIndex {
+  stationRegistryById: Record<number, Station>;
+  stationRegistryByCity: Record<City, Station[]>;
+}
+
 export interface CompanyGroup {
   creationDate: number;
   members: Array<Company>;
   commits: CommitIndex;
+  stations: Record<City, Station[]>;
+}
+
+export function CreateCompany(address: string, name: string): Company {
+  return {
+    address,
+    id: `${process.pid}${Date.now()}`,
+    name,
+  };
+}
+
+export function createCompanyGroup(
+  address: string,
+  name: string,
+  _stations: StationGroup,
+): CompanyGroup {
+  const stationByCity = {} as Record<City, Station[]>;
+  Object.values(_stations).forEach(station => {
+    const city = station.city as City;
+    if (!stationByCity[city]) {
+      stationByCity[city] = [];
+    }
+    stationByCity[city].push(station);
+  });
+  const date = Date.now();
+  const company = CreateCompany(address, name);
+  const commitId = 'alsdkfj';
+  const firstCommit: GroupCreationCommit = {
+    company: company,
+    timestamp: date,
+    type: 'GROUP_CREATION',
+    index: 0,
+    previousCommitId: 'none',
+    id: commitId,
+    data: {
+      members: [company],
+      stations: stationByCity,
+      creationDate: date,
+    },
+  };
+  return {
+    creationDate: date,
+
+    commits: {
+      commitRegistryById: {
+        [commitId]: firstCommit,
+      },
+      commitRegistryByIndex: {
+        [0]: firstCommit,
+      },
+      firstCommitId: commitId,
+      lastCommitId: commitId,
+      lastCommitIndex: 0,
+    },
+    members: firstCommit.data.members,
+    stations: firstCommit.data.stations,
+  };
 }

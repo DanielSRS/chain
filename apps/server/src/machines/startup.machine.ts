@@ -1,90 +1,203 @@
-import { createMachine } from 'xstate';
+import { assign, createMachine } from 'xstate';
+import {
+  createCompanyGroup,
+  type Commit,
+  type CompanyGroup,
+} from '../data/commit.ts';
+import type { ExtendedLogger } from '../utils/logger.ts';
+import type { City } from '../utils/cities.ts';
+import type { StationGroup } from '../utils/types.ts';
+import axios from 'axios';
 
-export const startupMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwC4EMBOKCuAHAsmgMYAWAlgHZgB0AyulpVAMQDaADALqKi4D2sMijJ8KPEAA9EAWgDMAFgDs1AKwAaEAE9EigJzUATLqOyAHAdkH5BgIynTAXwcbUmHAWLkqdBsIotWG24kEH5BYVFxKQRjZRV2FV1TdnkE2VldeQ1tBFN9AwA2AxV5XQLFFVkbEtknF188QlJKGgApPkomAHEMPjxmCFEaSgA3PgBrGlcsRs8W6nbO-x6+3ARRviI0CIoOTj3xMKERMRDouUVZVUV2KuLsxBrqUwzTG0tLaxtdOpBp9yaXjaHQo3V6-TAGF6GGouAANtsAGZ8DAAW2o-1mzW8i1By3Baw2Wx2ewOISOOyiiBsBRU1EUtKK6i0iAK7FMql0skU33k5i+P2cfwaHmxNAASmAAI7YOAoABiaDIcMgzAkrhQNDQiM1GAAFLJ2EaAJTMTGioHUSUyuWK5WQMm8ATHSJnanyeTUdhMh4IIzsai6GzsGzFS5WWyC+puLGWgCCAHclX4oHHcLheiM0HC1RqtTrIXrg0b2KbzYD5onk0w0xm+Fm4Y7Qs7KW6ENJ7HTbKZEvYg0UbL6VIplCkDOYbgpx0HfuW5t4q8d-LXM9nmABJABy64AKuu4wAZAD6tAAmpuAMJNiknKnt2QFK63UMFVJleQqcdZFkIYP2L12PIGRAXYj6ziKFbeLQmgUEQTDMHGAAK4oAPIAGoAKJHvgGH4AAQhh4pHq0KFbteLa3m2ciPtQhryAUug3CUxQqMyOTVKk1A2AyKjBo+6SPooThChQfAQHA4hzmKhwUa6oDnFyVzdr2eQ0rYvrSAY3penkpgMeOpjyGpKjgTGFrzPQbhMDJ4SUfJMhGDY1DlHYFQaaxqi6Yo1jlMObzFKZMzmTiIJgqsNkuqc9n3qYo49lybk-sUHKsewFRpZ8kaBQC840BeGBgNsYArHgEWttFXIGPSgnGLoaQZGxiDjnShppfE4YCtlsaVkmS6pumq5wmVdmSA5DKctyjW5CoBTPMW3l6NUenyF1wUStKsqoHaKoQMNcmjX6D60bIiSTUO7BVSUBSGR6-JZUKUmWtBsHWeSslRQdmlVM53G2HoBTvIZw6+u8bL0rFX53MkK0PRBuULCCkB7R95xWFcHqVJ+AklCkIN6HSz5WNYRhBtywkOEAA */
-  id: 'startupMachine',
+type Events =
+  | { type: 'INITIAL_SYNC'; data: { companyGroup: CompanyGroup } }
+  | { type: 'SET_CONTEXT'; data: Partial<Context> }
+  | {
+      type: 'APROVE_MEMBER_JOIN';
+      data: { commit: Commit<'APROVE_MEMBER_JOIN'> };
+    };
 
-  predictableActionArguments: true,
-  description: `Coordena a criação de um grupo de empresas ou o ingresso em um grupo existente`,
+type Context = {
+  log: ExtendedLogger;
+  companyGroup: CompanyGroup;
+  stations: StationGroup;
+  groupMemberAddress: string | undefined;
+  address: string;
+  name: string;
+};
 
-  states: {
-    Starting: {
-      always: [
-        {
-          target: 'JoiningGroup',
-          cond: 'hasIpOfAGroupCompany',
-        },
-        'CreateGroup',
-      ],
+export const startupMachine = createMachine(
+  {
+    /** @xstate-layout N4IgpgJg5mDOIC5SwC4EMBOKCuAHAsmgMYAWAlgHZgB0AyulpVAMQDaADALqKi4D2sMijJ8KPEAA9EAWgDMs9tQAcAJnbsALOwCc69fNkAaEAE9EARh3VzG2QFY7ANg22A7K9kqVAX2-HUmDgExORUdAzCFCys5txIIPyCwqLiUgjadrLU2p525ip27OZ2KrbGZghKikUa5tqOhXZKjto5vv4ReISklDQAUnyUTADiGHx4zBCiNJQAbnwA1jQBWF0hvdQDQ1Gj47gIc3xEaMkUHJzn4olCImLxaXIe1Hau7LL5duWIdrbKstpKcyeTwaFR1dogFZBbqhfqDCgjMYTMAYMYYai4AA2JwAZnwMABbahQtY9MJbBE7JH7Q7HU7nS7xa6nVIWBrUVwNRwFL4IRzsJTPHKuOoaVSg8F+SGdYJkmgAQQA7mgblF5bhcGNZmhMcwAJIAOT1ABU9fKADIAfVoAE0DQBhRm8AQ3FL3GSyRxZN75Zw6ZwlJQaXmWJSCopB-62czNWQQkmy2HUJUqyJQdWavja3USAIoGhoHH5jAACksegAlMwEzCNinVemNVqdU6Ei6We6ENIw3ZqGClHYAUptOZueZeS9XNRNCpVK9ZKDh+Z4zLa2EAEpgACO2DgKAAYirMZBmLn0PnqIXiyWFOoqzX1hvt7vUIeyMeIK3mbdWQgbBpp25T5TEQFRdGySwPg8UowW0FdAlJJNaBMCgiCYZh5QABXXAB5AA1ABRS18AI-AACECPXS0+hww0v3bH9OzkL1qAUDQWleH4CgcEMfkUcxOTydgvXkL1XHg1ZEw2AB1VMmH3fF7VEfMJBQZhaAI41LXtHCDWNAiAA1jXopJGNAB5Z0UbQVG5VwVFkVx6iDVxeW7cxrCcGwfXY0EPF8KUKD4CA4HEB85SuBi3XMmQciyftBzDEcx1chdHGnDRXAcQEvRHQEJOhR8aHoQImAi0yoskGQCm0PsgXcGybG0VxVF5f5rHY+zQxHLx7HyxCNgpRE9jK107mirtZCUKcBUHBzgIqApBQcdhMpWkFYL6qSwntDAwBOMBdjwEaO3G8saocMCFDyRy1CUXkwMUMVVAXJonHkOxNrXBVlQbDNm0xY6zMqrsVE5IU5t5Ac0sBdRXAykcmmcT7CuoTcdz3N8P0Biq0nstL3uFebvnYFRnnYoMXHFDapTCpCULQqJsbG4HpE66hHAEsFHI5yaNBeENPUUZq7MjfIqg0ZG5U2eFICZ39Wd+FxMhKUS+ODEC-0c3sfVKUEwJHBzJaTWSGwUjAlIoFSUDlpjb3ZuzYKanIim0VzRVq9RuRszwBTBfzvCAA */
+    id: 'startupMachine',
+
+    tsTypes: {} as import('./startup.machine.typegen.d.ts').Typegen0,
+    schema: {
+      events: {} as Events,
+      context: {} as Context,
     },
+    context: {} as Context,
 
-    JoiningGroup: {
-      invoke: {
-        src: 'sendJoinRequestToCompanyIp',
+    predictableActionArguments: true,
+    description: `Coordena a criação de um grupo de empresas ou o ingresso em um grupo existente`,
 
-        onDone: {
-          target: 'AwaitingApproval',
-          description: `Solicitação recebida pela empresa membro do grupo`,
-        },
-
-        onError: {
-          target: 'RequestFailed',
-          description: `Falha no envio ou recebimento da solicitação`,
-        },
+    states: {
+      Starting: {
+        always: [
+          {
+            target: 'JoiningGroup',
+            cond: 'hasAddressOfGroupMember',
+          },
+          {
+            target: 'CreateGroup',
+            actions: 'createGroupAndSaveToContext',
+          },
+        ],
       },
 
-      description: `Envia solicitação para o ip da empresa que faz parte do grupo solicitando ingresso.`,
-    },
+      JoiningGroup: {
+        invoke: {
+          src: 'sendJoinRequestToCompanyIp',
 
-    CreateGroup: {
-      description: `Estado final`,
-      type: 'final',
-    },
+          onDone: {
+            target: 'AwaitingApproval',
+            description: `Solicitação recebida pela empresa membro do grupo`,
+          },
 
-    AwaitingApproval: {
-      description: `Aguarda aprovação`,
-
-      after: {
-        '10000': {
-          target: 'JoiningGroup',
-          description: `Timeout da solicitação. Reinicia`,
+          onError: {
+            target: 'RequestFailed',
+            description: `Falha no envio ou recebimento da solicitação`,
+          },
         },
+
+        description: `Envia solicitação para o ip da empresa que faz parte do grupo solicitando ingresso.`,
       },
 
-      on: {
-        INITIAL_SYNC: {
-          target: 'Syncing',
+      CreateGroup: {
+        description: `Estado final`,
+        type: 'final',
+      },
 
-          description: `Recebe os dados do grupo, que inclui:
+      AwaitingApproval: {
+        description: `Aguarda aprovação`,
+
+        after: {
+          '10000': {
+            target: 'JoiningGroup',
+            description: `Timeout da solicitação. Reinicia`,
+          },
+        },
+
+        on: {
+          INITIAL_SYNC: {
+            target: 'Syncing',
+
+            description: `Recebe os dados do grupo, que inclui:
 
 - os membros
 - todos os eventos (commits) trocados até então`,
+
+            actions: 'saveGroupInfoToContext',
+          },
+        },
+
+        entry: 'logRequestSent',
+      },
+
+      RequestFailed: {
+        after: {
+          '3000': {
+            target: 'JoiningGroup',
+            description: `Tenta novamente a cada 3 segundos até conseguir enviar`,
+          },
+        },
+      },
+
+      Syncing: {
+        on: {
+          APROVE_MEMBER_JOIN: {
+            target: 'Joined',
+            description: `Ingresso no grupo aprovado pelos outros membros/empresas`,
+            actions: 'processApprovalCommit',
+          },
+        },
+      },
+
+      Joined: {
+        type: 'final',
+      },
+
+      WaitingForContext: {
+        on: {
+          SET_CONTEXT: {
+            target: 'Starting',
+            actions: 'saveContext',
+          },
         },
       },
     },
 
-    RequestFailed: {
-      after: {
-        '3000': {
-          target: 'JoiningGroup',
-          description: `Tenta novamente a cada 3 segundos até conseguir enviar`,
-        },
+    initial: 'WaitingForContext',
+  },
+  {
+    actions: {
+      logRequestSent(context, event) {
+        context.log.info('Connection request sent: ', event.data);
+      },
+      saveGroupInfoToContext: assign((_, event) => event.data),
+      processApprovalCommit: (context, event) => {
+        const { commit } = event.data;
+        context.log.info('Processing approval commit: ', commit);
+        context.companyGroup.commits.commitRegistryById[commit.id] = commit;
+        context.companyGroup.commits.commitRegistryByIndex[commit.index] =
+          commit;
+        context.companyGroup.commits.lastCommitId = commit.id;
+        context.companyGroup.commits.lastCommitIndex = commit.index;
+        context.companyGroup.members.push(commit.data.company);
+        const stationByCity = context.companyGroup.stations;
+        Object.values(commit.data.stations).forEach(s => {
+          const city = s.city as City;
+          stationByCity[city].push(s);
+        });
+      },
+      createGroupAndSaveToContext: assign(context => {
+        const newGroup = createCompanyGroup(
+          context.address,
+          context.name,
+          context.stations,
+        );
+        return {
+          companyGroup: newGroup,
+        };
+      }),
+      saveContext: assign((_, event) => event.data),
+    },
+    guards: {
+      hasAddressOfGroupMember: context => {
+        return !!context.groupMemberAddress;
       },
     },
-
-    Syncing: {
-      on: {
-        APROVE_MEMBER_JOIN: {
-          target: 'Joined',
-          description: `Ingresso no grupo aprovado pelos outros membros/empresas`,
-        },
+    services: {
+      sendJoinRequestToCompanyIp: async context => {
+        const res = await axios
+          .post('http://' + context.groupMemberAddress + '/connect', {
+            event: {
+              type: 'JOIN_GROUP',
+              data: {
+                company: {
+                  address: context.address,
+                  id: context.address,
+                  name: context.name,
+                },
+                stations: context.stations,
+              } satisfies Commit<'APROVE_MEMBER_JOIN'>['data'],
+            },
+          })
+          .catch(e => {
+            context.log.error('Error sending join request: ', e);
+          });
+        return res;
       },
-    },
-
-    Joined: {
-      type: 'final',
     },
   },
-
-  initial: 'Starting',
-});
+);
