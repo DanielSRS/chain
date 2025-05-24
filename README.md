@@ -13,8 +13,24 @@ This project uses Docker Compose to manage containerized services. The following
 #### Build and start all services
 
 ```bash
-# Build and start all main services (mqtt-broker, server, car)
-docker compose up --build
+# Build and start all main services
+docker compose --profile 'runner' -f 'docker-compose.yml' up -d --build
+```
+
+### Attaching to Running Services
+
+#### View Car Logs via logs Service
+
+```bash
+# Attach to the logs service to view real-time car logs
+docker compose attach logs
+```
+
+#### Interact with the Car Application (carr)
+
+```bash
+# Attach to the carr (car-run) service to use the car application interactively
+docker compose attach carr
 ```
 
 #### Build and start specific services
