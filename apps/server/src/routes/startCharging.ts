@@ -1,3 +1,4 @@
+import { blockchain } from '../index.ts';
 import { curry } from '../utils/curry.ts';
 import {
   ERROR_CODES,

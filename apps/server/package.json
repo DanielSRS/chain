@@ -3,16 +3,25 @@
   "version": "1.0.50",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "test": "./test-blockchain-system.sh",
+    "dev": "bun run --watch src/blockchain-server.ts",
+    "dev-old": "bun run --watch src/index.ts",
+    "dev-legacy": "bun run --watch src/main-blockchain.ts",
+    "blockchain:setup": "./setup-blockchain.sh",
+    "blockchain:start": "npx hardhat node",
+    "blockchain:compile": "npx hardhat compile",
+    "blockchain:test": "./test-blockchain-system.sh",
+    "start": "SERVER_PORT=3001 COMPANY_ID=company-a bun run src/blockchain-server.ts"
   },
   "dependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
     "axios": "^1.9.0",
     "elysia": "latest",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.24.2",
     "ip": "^2.0.1",
     "paho-mqtt": "^1.1.0",
     "react-native-logs": "^5.3.0",
-    "xstate": "4.37.1",
     "zod": "3.24.2"
   },
   "devDependencies": {

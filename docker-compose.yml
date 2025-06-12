@@ -11,13 +11,14 @@ services:
       - ./mosquitto/log:/mosquitto/log
     restart: unless-stopped
 
+  # Legacy server (for comparison/migration)
   server:
     build:
       context: .
       dockerfile: ./apps/server/Dockerfile
-    container_name: elysia-server
+    container_name: elysia-server-legacy
     ports:
-      - '3000:3000'
+      - '3002:3000'
       - '8080:8080'
     volumes:
       - ./:/workspace
@@ -27,6 +28,7 @@ services:
       - MQTT_HOST=mqtt-broker
       - MQTT_PORT=9001
       - MQTT_PATH=/
+      - SERVER_PORT=3000
     restart: unless-stopped
     depends_on:
       - mqtt-broker
@@ -39,7 +41,7 @@ services:
     stdin_open: true
     tty: true
     ports:
-      - '3001:3001' # Adjust port if needed
+      - '3003:3001' # Adjust port if needed
     volumes:
       - ./:/workspace
       - car-builder-modules:/workspace/node_modules
@@ -49,6 +51,8 @@ services:
       - MQTT_HOST=mqtt-broker
       - MQTT_PORT=9001
       - MQTT_PATH=/
+      - SERVER_HOST=blockchain-company-a
+      - SERVER_PORT=3000
       - SERVER_HOST=server
     restart: unless-stopped
     depends_on:
