@@ -200,6 +200,51 @@ export class EthereumConsensus {
         name: 'ReservationCreated',
         type: 'event',
       },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: 'uint256',
+            name: 'reservationId',
+            type: 'uint256',
+          },
+        ],
+        name: 'ChargingStarted',
+        type: 'event',
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: 'uint256',
+            name: 'reservationId',
+            type: 'uint256',
+          },
+          {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'chargeAmount',
+            type: 'uint256',
+          },
+        ],
+        name: 'ChargingCompleted',
+        type: 'event',
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: 'uint256',
+            name: 'reservationId',
+            type: 'uint256',
+          },
+        ],
+        name: 'PaymentProcessed',
+        type: 'event',
+      },
     ];
 
     // Contract will be initialized after deployment
@@ -214,40 +259,71 @@ export class EthereumConsensus {
 
   async initialize() {
     try {
-      // Try to connect to the network
+      // Connect to the network - no fallback allowed
       await this.provider.getNetwork();
       log.info('✅ Connected to Ethereum network');
+
+      // Deploy or connect to contract - required for operation
+      if (!this.contract) {
+        await this.deployContract();
+      }
+
       return true;
     } catch (error) {
-      log.warn(
-        '⚠️ Ethereum network not available, falling back to mock mode',
-        error,
-      );
-      return false;
+      log.error('❌ Failed to connect to Ethereum network:', error);
+      throw new Error('Blockchain connection required - no fallbacks allowed');
     }
   }
 
   async deployContract(): Promise<string> {
     try {
-      // This is a placeholder - in a real implementation, you would compile the contract
-      // For now, we'll assume the contract is already deployed
+      // Check if contract is already deployed at the expected address
       const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'; // Default Hardhat contract address
-      this.contract = new ethers.Contract(
+
+      // Try to connect to existing contract
+      const testContract = new ethers.Contract(
         contractAddress,
         this.contractAbi,
         this.wallet,
       );
-      return contractAddress;
+
+      // Test if contract exists by calling a view function
+      try {
+        await testContract.getStation(1);
+        this.contract = testContract;
+        log.info(`✅ Connected to existing contract at ${contractAddress}`);
+        return contractAddress;
+      } catch (error) {
+        // Check if this is a contract-level revert (expected for non-existent station)
+        // vs a network-level error (contract doesn't exist)
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        if (
+          errorMessage.includes('call revert exception') ||
+          errorMessage.includes('revert')
+        ) {
+          // This is expected - station 1 doesn't exist yet, but contract is deployed
+          this.contract = testContract;
+          log.info(`✅ Connected to existing contract at ${contractAddress}`);
+          return contractAddress;
+        } else {
+          log.warn(
+            '⚠️ Contract not found at expected address, contract must be deployed first',
+          );
+          throw new Error(
+            'Smart contract not deployed. Please deploy ChargingConsensus.sol to the blockchain first.',
+          );
+        }
+      }
     } catch (error) {
-      log.error('Failed to deploy contract:', error);
+      log.error('Failed to connect to contract:', error);
       throw error;
     }
   }
 
   async registerCompany(companyId: string): Promise<void> {
     if (!this.contract) {
-      log.info('Mock: Registering company', companyId);
-      return;
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
     }
 
     try {
@@ -262,8 +338,7 @@ export class EthereumConsensus {
 
   async registerStation(companyId: string): Promise<number> {
     if (!this.contract) {
-      log.info('Mock: Registering station for company', companyId);
-      return Math.floor(Math.random() * 1000);
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
     }
 
     try {
@@ -290,8 +365,7 @@ export class EthereumConsensus {
     endTime: number,
   ): Promise<number> {
     if (!this.contract) {
-      log.info('Mock: Creating reservation for station', stationId);
-      return Math.floor(Math.random() * 1000);
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
     }
 
     try {
@@ -320,8 +394,7 @@ export class EthereumConsensus {
 
   async startCharging(reservationId: number): Promise<void> {
     if (!this.contract) {
-      log.info('Mock: Starting charging for reservation', reservationId);
-      return;
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
     }
 
     try {
@@ -339,13 +412,7 @@ export class EthereumConsensus {
     chargeAmount: number,
   ): Promise<void> {
     if (!this.contract) {
-      log.info(
-        'Mock: Completing charging for reservation',
-        reservationId,
-        'amount:',
-        chargeAmount,
-      );
-      return;
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
     }
 
     try {
@@ -365,13 +432,7 @@ export class EthereumConsensus {
 
   async processPayment(reservationId: number, amount: number): Promise<void> {
     if (!this.contract) {
-      log.info(
-        'Mock: Processing payment for reservation',
-        reservationId,
-        'amount:',
-        amount,
-      );
-      return;
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
     }
 
     try {
@@ -388,12 +449,7 @@ export class EthereumConsensus {
 
   async getStation(stationId: number) {
     if (!this.contract) {
-      return {
-        id: stationId,
-        companyId: 'mock-company',
-        isAvailable: true,
-        owner: '0x0000000000000000000000000000000000000000',
-      };
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
     }
 
     try {
@@ -406,15 +462,7 @@ export class EthereumConsensus {
 
   async getReservation(reservationId: number) {
     if (!this.contract) {
-      return {
-        stationId: 1,
-        user: '0x0000000000000000000000000000000000000000',
-        startTime: Date.now(),
-        endTime: Date.now() + 3600000,
-        isActive: true,
-        chargeAmount: 0,
-        isPaid: false,
-      };
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
     }
 
     try {
@@ -465,8 +513,20 @@ export class EthereumConsensus {
           }
           break;
 
+        case 'CANCEL_RESERVATION':
+          // Implementation for canceling reservations
+          throw new Error('CANCEL_RESERVATION not implemented on blockchain');
+
+        case 'CONFIRM':
+          // Implementation for confirmation
+          throw new Error('CONFIRM transaction not implemented on blockchain');
+
+        case 'REJECT':
+          // Implementation for rejection
+          throw new Error('REJECT transaction not implemented on blockchain');
+
         default:
-          log.info('Mock: Processing transaction type', transaction.type);
+          throw new Error(`Unsupported transaction type: ${transaction.type}`);
       }
 
       return true;
@@ -480,24 +540,27 @@ export class EthereumConsensus {
   onStationRegistered(
     callback: (stationId: number, companyId: string, owner: string) => void,
   ) {
-    if (this.contract) {
-      this.contract.on('StationRegistered', callback);
+    if (!this.contract) {
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
     }
+    this.contract.on('StationRegistered', callback);
   }
 
   onReservationCreated(
     callback: (reservationId: number, stationId: number, user: string) => void,
   ) {
-    if (this.contract) {
-      this.contract.on('ReservationCreated', callback);
+    if (!this.contract) {
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
     }
+    this.contract.on('ReservationCreated', callback);
   }
 
   onChargingCompleted(
     callback: (reservationId: number, chargeAmount: number) => void,
   ) {
-    if (this.contract) {
-      this.contract.on('ChargingCompleted', callback);
+    if (!this.contract) {
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
     }
+    this.contract.on('ChargingCompleted', callback);
   }
 }

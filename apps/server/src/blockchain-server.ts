@@ -19,29 +19,32 @@ async function initializeBlockchainServer() {
   // Initialize blockchain connection
   const blockchainAvailable = await blockchain.initialize();
 
-  if (blockchainAvailable) {
-    log.info('✅ Blockchain consensus system initialized');
+  if (!blockchainAvailable) {
+    log.error('❌ Blockchain initialization failed - no fallbacks allowed');
+    throw new Error('Blockchain connection required for operation');
+  }
 
-    // Register company on blockchain
+  log.info('✅ Blockchain consensus system initialized');
+
+  // Register company on blockchain
+  try {
+    await blockchain.registerCompany(COMPANY_ID);
+    log.info(`✅ Company ${COMPANY_ID} registered on blockchain`);
+  } catch (error) {
+    log.error('❌ Failed to register company:', error);
+    throw error;
+  }
+
+  // Register stations on blockchain
+  for (const stationId in STATIONS) {
+    const station = STATIONS[stationId];
     try {
-      await blockchain.registerCompany(COMPANY_ID);
-      log.info(`✅ Company ${COMPANY_ID} registered on blockchain`);
+      await blockchain.registerStation(COMPANY_ID);
+      log.info(`✅ Station ${station.id} registered on blockchain`);
     } catch (error) {
-      log.warn('⚠️  Company may already be registered:', error);
+      log.error('❌ Failed to register station:', (error as Error).message);
+      throw error;
     }
-
-    // Register stations on blockchain
-    for (const stationId in STATIONS) {
-      const station = STATIONS[stationId];
-      try {
-        await blockchain.registerStation(COMPANY_ID);
-        log.info(`✅ Station ${station.id} registered on blockchain`);
-      } catch (error) {
-        log.error('❌ Failed to register station:', (error as Error).message);
-      }
-    }
-  } else {
-    log.warn('⚠️  Running in mock mode without blockchain');
   }
 
   // Set up blockchain event listeners
@@ -88,12 +91,17 @@ const app = new Elysia()
   // Blockchain status endpoint
   .get('/blockchain/status', async ({ blockchain: blockchainService }) => {
     try {
-      // Try to get network status
+      // Ensure blockchain is properly initialized (no fallbacks)
       const isAvailable = await blockchainService.initialize();
+
+      if (!isAvailable) {
+        throw new Error('Blockchain not available');
+      }
+
       return {
         status: 'success',
         blockchain: {
-          available: isAvailable,
+          available: true,
           network: 'Hardhat Local',
           chainId: 1337,
         },
@@ -168,24 +176,19 @@ const app = new Elysia()
       const { stationId, userId, startTime, endTime } = body;
 
       try {
-        const success = await blockchainService.submitTransaction({
-          type: 'RESERVE_STATION',
-          data: { stationId, userId, startTime, endTime },
-        });
+        // Create reservation directly on blockchain
+        const actualReservationId = await blockchainService.createReservation(
+          stationId,
+          startTime || Date.now(),
+          endTime || Date.now() + 2 * 60 * 60 * 1000,
+        );
 
-        if (success) {
-          return {
-            status: 'success',
-            message: `Station ${stationId} reserved for user ${userId}`,
-            reservationId: Math.floor(Math.random() * 1000), // Mock ID
-            company: COMPANY_ID,
-          };
-        } else {
-          return {
-            status: 'error',
-            message: 'Reservation failed',
-          };
-        }
+        return {
+          status: 'success',
+          message: `Station ${stationId} reserved for user ${userId}`,
+          reservationId: actualReservationId,
+          company: COMPANY_ID,
+        };
       } catch (error) {
         return {
           status: 'error',

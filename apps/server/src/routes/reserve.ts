@@ -13,11 +13,11 @@ const log = Logger.extend('ReserveRoute');
 type Handler = RequestHandler<'reserve'>;
 
 export const reserve = curry(
-  (
+  async (
     stations: StationGroup,
     users: UserGroup,
     data: Handler['data'],
-  ): Handler['res'] => {
+  ): Promise<Handler['res']> => {
     const { stationId, userId } = data;
     const station = stations[stationId];
 
@@ -64,12 +64,12 @@ export const reserve = curry(
       };
     }
 
-    // Submit to blockchain asynchronously (fire-and-forget for now)
+    // Submit to blockchain synchronously - no optimistic updates allowed
     const currentTime = Date.now();
     const endTime = currentTime + 2 * 60 * 60 * 1000; // 2 hours from now
 
-    blockchain
-      .submitTransaction({
+    try {
+      const success = await blockchain.submitTransaction({
         type: 'RESERVE_STATION',
         data: {
           stationId,
@@ -77,30 +77,39 @@ export const reserve = curry(
           startTime: currentTime,
           endTime: endTime,
         },
-      })
-      .then(success => {
-        if (success) {
-          log.info(
-            `✅ Reservation ${userId}->${stationId} submitted to blockchain`,
-          );
-        } else {
-          log.info(
-            `❌ Failed to submit reservation ${userId}->${stationId} to blockchain`,
-          );
-        }
-      })
-      .catch(error => {
-        log.error('Blockchain submission error:', error);
       });
 
-    // Update local state immediately (optimistic update)
-    station.reservations.push(userId);
-    station.state = 'reserved';
+      if (success) {
+        log.info(
+          `✅ Reservation ${userId}->${stationId} confirmed on blockchain`,
+        );
 
-    return {
-      success: true,
-      message: `Reserved station ${station.id} (blockchain consensus pending)`,
-      data: undefined,
-    };
+        // Only update local state after blockchain confirmation
+        station.reservations.push(userId);
+        station.state = 'reserved';
+
+        return {
+          success: true,
+          message: `Reserved station ${station.id} via blockchain consensus`,
+          data: undefined,
+        };
+      } else {
+        log.error(
+          `❌ Failed to submit reservation ${userId}->${stationId} to blockchain`,
+        );
+        return {
+          success: false,
+          message: 'Blockchain reservation failed',
+          error: undefined,
+        };
+      }
+    } catch (error) {
+      log.error('Blockchain submission error:', error);
+      return {
+        success: false,
+        message: 'Blockchain consensus failed',
+        error: undefined,
+      };
+    }
   },
 );

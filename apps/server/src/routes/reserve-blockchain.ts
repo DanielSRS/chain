@@ -34,64 +34,69 @@ async function createBlockchainReservation(
     };
   }
 
-  // Check if user already has reservation on this station
-  const hasReservationOnThisStation = station.reservations.includes(userId);
-  if (hasReservationOnThisStation) {
-    return {
-      success: true,
-      message: `You already have a reservation on this station: ${station.id}`,
-      data: undefined,
-    };
-  }
+  // Check if user already has reservation on this station - query blockchain instead of local state
+  try {
+    // In a production system, we would query the blockchain for reservation status
+    // For now, we still check local state but this should be replaced with blockchain queries
+    const hasReservationOnThisStation = station.reservations.includes(userId);
+    if (hasReservationOnThisStation) {
+      return {
+        success: true,
+        message: `You already have a reservation on this station: ${station.id}`,
+        data: undefined,
+      };
+    }
 
-  // Check if user has any other reservation
-  const hasAnyOtherReservation = Object.entries(stations).reduce(
-    (prev, stationEntry) => {
-      return stationEntry[1].reservations.includes(userId) || prev;
-    },
-    false,
-  );
+    // Check if user has any other reservation - should also query blockchain
+    const hasAnyOtherReservation = Object.entries(stations).reduce(
+      (prev, stationEntry) => {
+        return stationEntry[1].reservations.includes(userId) || prev;
+      },
+      false,
+    );
 
-  if (hasAnyOtherReservation) {
+    if (hasAnyOtherReservation) {
+      return {
+        success: false,
+        message: 'You already have a reservation on another station',
+        error: undefined,
+      };
+    }
+  } catch {
     return {
       success: false,
-      message: 'You already have a reservation on another station',
+      message: 'Failed to check reservation status',
       error: undefined,
     };
   }
-
   try {
     // Submit reservation to blockchain for consensus
     const currentTime = Date.now();
     const endTime = currentTime + 2 * 60 * 60 * 1000; // 2 hours from now
 
-    const blockchainSuccess = await blockchain.submitTransaction({
-      type: 'RESERVE_STATION',
-      data: {
-        stationId,
-        userId: userId.toString(),
-        startTime: currentTime,
-        endTime: endTime,
-      },
-    });
+    const reservationId = await blockchain.createReservation(
+      stationId,
+      currentTime,
+      endTime,
+    );
 
-    if (!blockchainSuccess) {
+    if (reservationId > 0) {
+      // Only update local state after blockchain confirmation
+      station.reservations.push(userId);
+      station.state = 'reserved';
+
+      return {
+        success: true,
+        message: `Reserved station ${station.id} via blockchain consensus (ID: ${reservationId})`,
+        data: undefined,
+      };
+    } else {
       return {
         success: false,
         message: 'Failed to create reservation on blockchain',
         error: undefined,
       };
     }
-
-    // Update local state after blockchain confirmation
-    station.reservations.push(userId);
-    station.state = 'reserved';
-
-    return {
-      success: true,
-      message: `Reserved station ${station.id} via blockchain consensus`,
-      data: undefined,
-    };
   } catch {
     return {
       success: false,
