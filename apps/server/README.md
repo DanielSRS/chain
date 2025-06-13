@@ -2,6 +2,18 @@
 
 > **✅ MIGRATION COMPLETED**: Successfully replaced Paxos + XState with Ethereum blockchain consensus
 
+## 📚 **[DOCUMENTAÇÃO COMPLETA DISPONÍVEL](./README-COMPLETE.md)**
+
+**🎯 Para informações detalhadas sobre arquitetura, implementação técnica e guias de uso, consulte:**
+
+- 📋 **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Arquitetura do sistema e diagramas
+- 🔧 **[TECHNICAL-DOCS.md](./TECHNICAL-DOCS.md)** - Documentação técnica detalhada
+- 🚀 **[BLOCKCHAIN-QUICKSTART.md](./BLOCKCHAIN-QUICKSTART.md)** - Guia de início rápido
+- 📄 **[NO-MOCKS-COMPLETED.md](./NO-MOCKS-COMPLETED.md)** - Relatório de migração
+- 📚 **[README-COMPLETE.md](./README-COMPLETE.md)** - Índice completo da documentação
+
+---
+
 ## 🚀 Quick Start
 
 The system is now **fully operational** with simplified blockchain consensus:
