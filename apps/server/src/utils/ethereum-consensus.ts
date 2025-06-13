@@ -30,8 +30,8 @@ export interface BlockchainConfig {
 export class EthereumConsensus {
   private provider: ethers.providers.JsonRpcProvider;
   private wallet: ethers.Wallet;
-  private contract: ethers.Contract;
-  private contractAbi: any;
+  private contract: ethers.Contract | null = null;
+  private contractAbi: ethers.ContractInterface;
 
   constructor(config: BlockchainConfig = {}) {
     // Initialize provider (Hardhat local network)
@@ -219,7 +219,10 @@ export class EthereumConsensus {
       log.info('✅ Connected to Ethereum network');
       return true;
     } catch (error) {
-      log.warn('⚠️ Ethereum network not available, falling back to mock mode');
+      log.warn(
+        '⚠️ Ethereum network not available, falling back to mock mode',
+        error,
+      );
       return false;
     }
   }
@@ -269,7 +272,7 @@ export class EthereumConsensus {
 
       // Extract station ID from event logs
       const event = receipt.events?.find(
-        (e: any) => e.event === 'StationRegistered',
+        (e: { event: unknown }) => e.event === 'StationRegistered',
       );
       const stationId = event?.args?.stationId?.toNumber() || 0;
 
@@ -301,7 +304,7 @@ export class EthereumConsensus {
 
       // Extract reservation ID from event logs
       const event = receipt.events?.find(
-        (e: any) => e.event === 'ReservationCreated',
+        (e: { event: unknown }) => e.event === 'ReservationCreated',
       );
       const reservationId = event?.args?.reservationId?.toNumber() || 0;
 

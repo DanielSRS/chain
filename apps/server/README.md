@@ -62,19 +62,18 @@ apps/server/
 ├── tsconfig.json
 ├── README.md
 └── src/
-    ├── index.ts            # Entry point
-    ├── main.ts             # Main server bootstrap
-    ├── mqtt-server.ts      # MQTT server logic
-    ├── server.ts           # HTTP server setup
-    ├── data/               # Data and commit logic
-    ├── machines/           # State machines (e.g., startup)
-    ├── routes/             # API route handlers
-    ├── schemas/            # Zod schemas for validation
-    └── utils/              # Utilities (logger, route generator, etc.)
+    ├── blockchain-server.ts # Main entry point - Blockchain-enabled server
+    ├── mqtt-server.ts       # MQTT server logic
+    ├── data/                # Data and commit logic
+    ├── machines/            # State machines (e.g., startup)
+    ├── routes/              # API route handlers
+    ├── schemas/             # Zod schemas for validation
+    └── utils/               # Utilities (logger, route generator, etc.)
 ```
 
 ### Folders and Files
 
+- **src/blockchain-server.ts**: Main entry point with blockchain integration and HTTP server
 - **src/routes/**: Contains all API endpoints (e.g., `startCharging.ts`, `payment.ts`, `registerCar.ts`)
 - **src/machines/**: State machine logic for server startup and process management
 - **src/schemas/**: Zod schemas for validating car, user, station, and location data

@@ -1,4 +1,4 @@
-import { blockchain } from '../index.ts';
+import { blockchain } from '../blockchain-server.ts';
 import { curry } from '../utils/curry.ts';
 import { Logger } from '../utils/logger.ts';
 import {

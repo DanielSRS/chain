@@ -1,5 +1,5 @@
-import { curry } from './utils/curry.ts';
-import { calculateDistance, type Car, type Station } from './utils/types.ts';
+import { curry } from './curry.ts';
+import { calculateDistance, type Car, type Station } from './types.ts';
 
 /**
  * Calcula a recomendação de postos de recarga para um determinado carro

@@ -1,4 +1,4 @@
-import { blockchain } from '../index.ts';
+import { blockchain } from '../blockchain-server.ts';
 import {
   ERROR_CODES,
   type RequestHandler,
@@ -92,7 +92,7 @@ async function createBlockchainReservation(
       message: `Reserved station ${station.id} via blockchain consensus`,
       data: undefined,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       message: 'Blockchain consensus failed',
