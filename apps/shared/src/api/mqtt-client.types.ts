@@ -3,6 +3,16 @@ export interface PathResult {
   cost: number;
 }
 
+// Import types from main types file
+import type {
+  Station,
+  User,
+  Charge,
+  Position,
+  Response,
+  ErrorResponse,
+} from '../utils/main.types.js';
+
 export type MqttApiEndpointsMap = {
   cities: {
     requestTopic: 'cities';
@@ -24,6 +34,76 @@ export type MqttApiEndpointsMap = {
      * List of routes
      */
     responseData: readonly PathResult[];
+  };
+  getSuggestions: {
+    requestTopic: 'getSuggestions';
+    responseTopic: 'getSuggestions/response';
+    requestData: {
+      id: number;
+      location: Position;
+    };
+    responseData: Response<Station[]>;
+  };
+  reserve: {
+    requestTopic: 'reserve';
+    responseTopic: 'reserve/response';
+    requestData: {
+      userId: number;
+      stationId: number;
+    };
+    responseData: Response<undefined> | ErrorResponse<undefined | string>;
+  };
+  registerUser: {
+    requestTopic: 'registerUser';
+    responseTopic: 'registerUser/response';
+    requestData: User;
+    responseData: Response<User> | ErrorResponse<unknown>;
+  };
+  startCharging: {
+    requestTopic: 'startCharging';
+    responseTopic: 'startCharging/response';
+    requestData: {
+      stationId: number;
+      userId: number;
+      battery_level: number;
+    };
+    responseData: Response<Charge> | ErrorResponse<string>;
+  };
+  endCharging: {
+    requestTopic: 'endCharging';
+    responseTopic: 'endCharging/response';
+    requestData: {
+      stationId: number;
+      userId: number;
+      battery_level: number;
+    };
+    responseData: Response<Charge> | ErrorResponse<string>;
+  };
+  rechargeList: {
+    requestTopic: 'rechargeList';
+    responseTopic: 'rechargeList/response';
+    requestData: {
+      userId: number;
+    };
+    responseData: Response<Charge[]> | ErrorResponse<string>;
+  };
+  payment: {
+    requestTopic: 'payment';
+    responseTopic: 'payment/response';
+    requestData: {
+      userId: number;
+      chargeId: number;
+      hasPaid: boolean;
+    };
+    responseData: Response<Charge> | ErrorResponse<string>;
+  };
+  getStationInfo: {
+    requestTopic: 'getStationInfo';
+    responseTopic: 'getStationInfo/response';
+    requestData: {
+      id: number;
+    };
+    responseData: Response<Station> | ErrorResponse<string>;
   };
 };
 
