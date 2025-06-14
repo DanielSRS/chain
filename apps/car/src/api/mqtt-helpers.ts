@@ -4,8 +4,48 @@ import type {
   MqttApiEndpointsKeys,
   MqttApiEndpointsMap,
 } from '../../../shared/src/api/mqtt-client.types.js';
+import { deleteUser } from '../store/shared-data.js';
 
 const log = Logger.extend('MqttHelpers');
+
+/**
+ * Check if the response contains a USER_NOT_FOUND error and handle logout
+ */
+function handleUserNotFoundError(response: unknown): boolean {
+  if (
+    typeof response === 'object' &&
+    response !== null &&
+    'success' in response &&
+    !response.success
+  ) {
+    const errorResponse = response as {
+      success: false;
+      error?: unknown;
+      message?: string;
+    };
+
+    // Check for USER_NOT_FOUND error in different formats
+    const isUserNotFound =
+      (typeof errorResponse.error === 'string' &&
+        errorResponse.error.includes('USER_NOT_FOUND')) ||
+      (typeof errorResponse.error === 'object' &&
+        errorResponse.error !== null &&
+        'code' in errorResponse.error &&
+        errorResponse.error.code === 'USER_NOT_FOUND') ||
+      (typeof errorResponse.message === 'string' &&
+        errorResponse.message.includes('User does not exist'));
+
+    if (isUserNotFound) {
+      log.error(
+        'Server reports user does not exist, logging out user',
+        response,
+      );
+      deleteUser();
+      return true;
+    }
+  }
+  return false;
+}
 
 /**
  * Generic MQTT request helper that mimics the TCP API structure
@@ -32,11 +72,29 @@ export async function mqttRequest<K extends MqttApiEndpointsKeys>(
     const result = await mqttApiClient(requestTopic, responseTopic, data);
 
     if (result.success) {
+      // Check for user authentication errors in successful responses
+      if (handleUserNotFoundError(result.data)) {
+        return {
+          type: 'error',
+          message: 'User not found, logged out',
+          error: new Error('User not found'),
+        };
+      }
+
       return {
         type: 'success',
         data: result.data as MqttApiEndpointsMap[K]['responseData'],
       };
     } else {
+      // Check for user authentication errors in error responses
+      if (handleUserNotFoundError(result.error.data)) {
+        return {
+          type: 'error',
+          message: 'User not found, logged out',
+          error: new Error('User not found'),
+        };
+      }
+
       return {
         type: 'error',
         message: result.error.type,

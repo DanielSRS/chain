@@ -99,20 +99,13 @@ export async function getCharges(onResult: (d: Charge[]) => void) {
     Logger.error('getCharges MQTT Error: ', res);
     return;
   }
+
   // Logger.info('getCharges: ', res.data);
   if ('success' in res.data && !res.data.success) {
     Logger.error('getCharges response error: ', res);
-    if (
-      typeof res.data.error === 'string' &&
-      res.data.error.includes('USER_NOT_FOUND')
-    ) {
-      Logger.error('Server lost user data??', res.data);
-      // Log user out
-      deleteUser();
-      return;
-    }
     return;
   }
+
   if ('data' in res.data && Array.isArray(res.data.data)) {
     onResult(res.data.data);
   } else {
