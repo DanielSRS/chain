@@ -3,7 +3,6 @@ services:
     image: eclipse-mosquitto:latest
     container_name: mqtt-broker
     ports:
-      - '1883:1883' # MQTT default port
       - '9001:9001' # WebSockets port
     volumes:
       - ./mosquitto/config:/mosquitto/config
