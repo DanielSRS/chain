@@ -6,13 +6,14 @@ import type { MqttApiEndpointsKeys } from './utils/types.ts';
 
 // Import TCP route handlers to adapt them for MQTT
 import { getSuggestions } from './routes/stationSuggetions.ts';
-import { reserve } from './routes/reserve.ts';
+import { reserve } from './routes/reserve-blockchain.ts';
 import { registerUser } from './routes/registerCar.ts';
 import { startCharging } from './routes/startCharging.ts';
 import { endCharging } from './routes/endCharging.ts';
 import { rechargeList } from './routes/rechargeList.ts';
 import { payment } from './routes/payment.ts';
 import { getStationInfo } from './routes/getStationInfo.ts';
+import { reserveMultipleStations } from './routes/reserve-multiple-stations.ts';
 import { CHARGES, STATIONS, USERS } from './data/data.ts';
 
 const mqttHost = process.env.MQTT_HOST || 'localhost';
@@ -74,8 +75,17 @@ mqttClient.onMessageArrived = async message => {
         break;
 
       case 'reserve':
-        responseData = await reserve(STATIONS, USERS, requestData);
+        responseData = await reserve(STATIONS, USERS)(requestData);
         responseTopic = 'reserve/response';
+        break;
+
+      case 'reserveMultipleStations':
+        responseData = await reserveMultipleStations(
+          STATIONS,
+          USERS,
+          requestData,
+        );
+        responseTopic = 'reserveMultipleStations/response';
         break;
 
       case 'registerUser':

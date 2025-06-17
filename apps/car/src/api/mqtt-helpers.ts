@@ -140,4 +140,8 @@ export const mqttHelpers = {
   getStationInfo: (
     data: MqttApiEndpointsMap['getStationInfo']['requestData'],
   ) => mqttRequest('getStationInfo', data),
+
+  reserveMultipleStations: (
+    data: MqttApiEndpointsMap['reserveMultipleStations']['requestData'],
+  ) => mqttRequest('reserveMultipleStations', data),
 };

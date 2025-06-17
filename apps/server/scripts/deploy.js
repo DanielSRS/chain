@@ -1,4 +1,5 @@
-const { ethers } = require('hardhat');
+import hre from 'hardhat';
+const { ethers } = hre;
 
 // Simple logger for deployment script
 const log = {

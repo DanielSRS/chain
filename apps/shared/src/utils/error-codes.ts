@@ -10,6 +10,10 @@ export const ERROR_CODES = {
     code: 'STATION_NOT_FOUND',
     message: 'Station not found',
   },
+  STATION_NOT_AVAILABLE: {
+    code: 'STATION_NOT_AVAILABLE',
+    message: 'Station not available',
+  },
 } as const;
 
 export type ErrorCode = {

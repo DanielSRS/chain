@@ -49,6 +49,13 @@ export class EthereumConsensus {
     // Load contract ABI (will be compiled later)
     this.contractAbi = [
       {
+        inputs: [],
+        name: 'registerUser',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
         inputs: [{ internalType: 'string', name: 'companyId', type: 'string' }],
         name: 'registerCompany',
         outputs: [],
@@ -105,14 +112,99 @@ export class EthereumConsensus {
         inputs: [
           { internalType: 'uint256', name: 'stationId', type: 'uint256' },
         ],
+        name: 'validateStationAvailable',
+        outputs: [
+          { internalType: 'bool', name: '', type: 'bool' },
+          { internalType: 'string', name: '', type: 'string' },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { internalType: 'address', name: 'user', type: 'address' },
+          { internalType: 'uint256', name: 'stationId', type: 'uint256' },
+        ],
+        name: 'validateUserCanReserve',
+        outputs: [
+          { internalType: 'bool', name: '', type: 'bool' },
+          { internalType: 'string', name: '', type: 'string' },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { internalType: 'uint256[]', name: 'stationIds', type: 'uint256[]' },
+        ],
+        name: 'validateMultipleStations',
+        outputs: [
+          { internalType: 'bool', name: '', type: 'bool' },
+          { internalType: 'string', name: '', type: 'string' },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { internalType: 'uint256', name: 'stationId', type: 'uint256' },
+        ],
+        name: 'getStationState',
+        outputs: [{ internalType: 'uint8', name: '', type: 'uint8' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
+        name: 'getUserActiveReservations',
+        outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
+        name: 'isUserRegistered',
+        outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { internalType: 'uint256', name: 'reservationId', type: 'uint256' },
+        ],
+        name: 'cancelReservation',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { internalType: 'uint256', name: 'stationId', type: 'uint256' },
+          { internalType: 'uint8', name: 'newState', type: 'uint8' },
+        ],
+        name: 'setStationState',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { internalType: 'uint256', name: 'stationId', type: 'uint256' },
+        ],
         name: 'getStation',
         outputs: [
           {
             components: [
               { internalType: 'uint256', name: 'id', type: 'uint256' },
               { internalType: 'string', name: 'companyId', type: 'string' },
-              { internalType: 'bool', name: 'isAvailable', type: 'bool' },
+              { internalType: 'uint8', name: 'state', type: 'uint8' },
               { internalType: 'address', name: 'owner', type: 'address' },
+              { internalType: 'address', name: 'currentUser', type: 'address' },
+              {
+                internalType: 'uint256',
+                name: 'activeReservationId',
+                type: 'uint256',
+              },
             ],
             internalType: 'struct ChargingConsensus.Station',
             name: '',
@@ -173,6 +265,69 @@ export class EthereumConsensus {
           },
         ],
         name: 'StationRegistered',
+        type: 'event',
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: 'uint256',
+            name: 'stationId',
+            type: 'uint256',
+          },
+          {
+            indexed: false,
+            internalType: 'uint8',
+            name: 'oldState',
+            type: 'uint8',
+          },
+          {
+            indexed: false,
+            internalType: 'uint8',
+            name: 'newState',
+            type: 'uint8',
+          },
+        ],
+        name: 'StationStateChanged',
+        type: 'event',
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: 'address',
+            name: 'user',
+            type: 'address',
+          },
+        ],
+        name: 'UserRegistered',
+        type: 'event',
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: false,
+            internalType: 'address',
+            name: 'user',
+            type: 'address',
+          },
+          {
+            indexed: false,
+            internalType: 'uint256[]',
+            name: 'stationIds',
+            type: 'uint256[]',
+          },
+          {
+            indexed: false,
+            internalType: 'string',
+            name: 'reason',
+            type: 'string',
+          },
+        ],
+        name: 'ReservationValidationFailed',
         type: 'event',
       },
       {
@@ -243,6 +398,98 @@ export class EthereumConsensus {
           },
         ],
         name: 'PaymentProcessed',
+        type: 'event',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256[]',
+            name: 'stationIds',
+            type: 'uint256[]',
+          },
+          {
+            internalType: 'uint256[]',
+            name: 'startTimes',
+            type: 'uint256[]',
+          },
+          {
+            internalType: 'uint256[]',
+            name: 'endTimes',
+            type: 'uint256[]',
+          },
+        ],
+        name: 'createAtomicReservation',
+        outputs: [
+          {
+            internalType: 'uint256[]',
+            name: '',
+            type: 'uint256[]',
+          },
+        ],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'uint256[]',
+            name: 'reservationIds',
+            type: 'uint256[]',
+          },
+        ],
+        name: 'cancelAtomicReservation',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: false,
+            internalType: 'uint256[]',
+            name: 'reservationIds',
+            type: 'uint256[]',
+          },
+          {
+            indexed: false,
+            internalType: 'uint256[]',
+            name: 'stationIds',
+            type: 'uint256[]',
+          },
+          {
+            indexed: false,
+            internalType: 'address',
+            name: 'user',
+            type: 'address',
+          },
+        ],
+        name: 'AtomicReservationCreated',
+        type: 'event',
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: false,
+            internalType: 'uint256[]',
+            name: 'stationIds',
+            type: 'uint256[]',
+          },
+          {
+            indexed: false,
+            internalType: 'address',
+            name: 'user',
+            type: 'address',
+          },
+          {
+            indexed: false,
+            internalType: 'string',
+            name: 'reason',
+            type: 'string',
+          },
+        ],
+        name: 'AtomicReservationFailed',
         type: 'event',
       },
     ];
@@ -332,6 +579,21 @@ export class EthereumConsensus {
       log.info(`✅ Company ${companyId} registered on blockchain`);
     } catch (error) {
       log.error('Failed to register company:', error);
+      throw error;
+    }
+  }
+
+  async registerUser(): Promise<void> {
+    if (!this.contract) {
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
+    }
+
+    try {
+      const tx = await this.contract.registerUser();
+      await tx.wait();
+      log.info(`✅ User ${this.wallet.address} registered on blockchain`);
+    } catch (error) {
+      log.error('Failed to register user:', error);
       throw error;
     }
   }
@@ -469,6 +731,178 @@ export class EthereumConsensus {
       return await this.contract.getReservation(reservationId);
     } catch (error) {
       log.error('Failed to get reservation:', error);
+      throw error;
+    }
+  }
+
+  // Validation methods - delegate to smart contract
+  async validateStationAvailable(
+    stationId: number,
+  ): Promise<{ isValid: boolean; reason: string }> {
+    if (!this.contract) {
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
+    }
+
+    try {
+      const [isValid, reason] =
+        await this.contract.validateStationAvailable(stationId);
+      return { isValid, reason };
+    } catch (error) {
+      log.error('Failed to validate station availability:', error);
+      throw error;
+    }
+  }
+
+  async validateUserCanReserve(
+    userAddress: string,
+    stationId: number,
+  ): Promise<{ isValid: boolean; reason: string }> {
+    if (!this.contract) {
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
+    }
+
+    try {
+      const [isValid, reason] = await this.contract.validateUserCanReserve(
+        userAddress,
+        stationId,
+      );
+      return { isValid, reason };
+    } catch (error) {
+      log.error('Failed to validate user can reserve:', error);
+      throw error;
+    }
+  }
+
+  async validateMultipleStations(
+    stationIds: number[],
+  ): Promise<{ isValid: boolean; reason: string }> {
+    if (!this.contract) {
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
+    }
+
+    try {
+      const [isValid, reason] =
+        await this.contract.validateMultipleStations(stationIds);
+      return { isValid, reason };
+    } catch (error) {
+      log.error('Failed to validate multiple stations:', error);
+      throw error;
+    }
+  }
+
+  async isUserRegistered(userAddress?: string): Promise<boolean> {
+    if (!this.contract) {
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
+    }
+
+    try {
+      const address = userAddress || this.wallet.address;
+      return await this.contract.isUserRegistered(address);
+    } catch (error) {
+      log.error('Failed to check user registration:', error);
+      throw error;
+    }
+  }
+
+  async getStationState(stationId: number): Promise<number> {
+    if (!this.contract) {
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
+    }
+
+    try {
+      return await this.contract.getStationState(stationId);
+    } catch (error) {
+      log.error('Failed to get station state:', error);
+      throw error;
+    }
+  }
+
+  async getUserActiveReservations(userAddress?: string): Promise<number> {
+    if (!this.contract) {
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
+    }
+
+    try {
+      const address = userAddress || this.wallet.address;
+      return await this.contract.getUserActiveReservations(address);
+    } catch (error) {
+      log.error('Failed to get user active reservations:', error);
+      throw error;
+    }
+  }
+
+  async cancelReservation(reservationId: number): Promise<void> {
+    if (!this.contract) {
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
+    }
+
+    try {
+      const tx = await this.contract.cancelReservation(reservationId);
+      await tx.wait();
+      log.info(`✅ Reservation ${reservationId} cancelled`);
+    } catch (error) {
+      log.error('Failed to cancel reservation:', error);
+      throw error;
+    }
+  }
+
+  async createAtomicReservation(
+    stationIds: number[],
+    startTimes: number[],
+    endTimes: number[],
+  ): Promise<number[]> {
+    if (!this.contract) {
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
+    }
+
+    try {
+      log.info(
+        `🔄 Creating atomic reservation for stations: ${stationIds.join(', ')}`,
+      );
+
+      const tx = await this.contract.createAtomicReservation(
+        stationIds,
+        startTimes,
+        endTimes,
+      );
+      const receipt = await tx.wait();
+
+      // Extract reservation IDs from event logs
+      const atomicEvent = receipt.events?.find(
+        (e: { event: unknown }) => e.event === 'AtomicReservationCreated',
+      );
+
+      const reservationIds: number[] =
+        atomicEvent?.args?.reservationIds?.map(
+          (id: { toNumber: () => number }) => id.toNumber(),
+        ) || [];
+
+      log.info(
+        `✅ Atomic reservation created successfully. Reservation IDs: ${reservationIds.join(', ')}`,
+      );
+      return reservationIds;
+    } catch (error) {
+      log.error('Failed to create atomic reservation:', error);
+      throw error;
+    }
+  }
+
+  async cancelAtomicReservation(reservationIds: number[]): Promise<void> {
+    if (!this.contract) {
+      throw new Error('Blockchain contract not initialized - no mocks allowed');
+    }
+
+    try {
+      log.info(
+        `🔄 Cancelling atomic reservation: ${reservationIds.join(', ')}`,
+      );
+
+      const tx = await this.contract.cancelAtomicReservation(reservationIds);
+      await tx.wait();
+
+      log.info(`✅ Atomic reservation cancelled successfully`);
+    } catch (error) {
+      log.error('Failed to cancel atomic reservation:', error);
       throw error;
     }
   }

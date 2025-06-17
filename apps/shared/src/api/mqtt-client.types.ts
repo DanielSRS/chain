@@ -105,6 +105,24 @@ export type MqttApiEndpointsMap = {
     };
     responseData: Response<Station> | ErrorResponse<string>;
   };
+  reserveMultipleStations: {
+    requestTopic: 'reserveMultipleStations';
+    responseTopic: 'reserveMultipleStations/response';
+    requestData: {
+      stationIds: number[];
+      userId: number;
+      startTime: number;
+      estimatedStopTimes: number[];
+    };
+    responseData:
+      | Response<{
+          success: boolean;
+          reservationIds?: number[];
+          message: string;
+          stationErrors?: { stationId: number; error: string }[];
+        }>
+      | ErrorResponse<string>;
+  };
 };
 
 export type MqttApiEndpointsKeys = keyof MqttApiEndpointsMap;

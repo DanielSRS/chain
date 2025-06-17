@@ -169,27 +169,50 @@ const app = new Elysia()
     },
   )
 
+  // User registration endpoint
+  .post('/register-user', async ({ blockchain: blockchainService }) => {
+    try {
+      // Let the blockchain contract handle user registration
+      await blockchainService.registerUser();
+
+      return {
+        status: 'success',
+        message: 'User registered successfully',
+        company: COMPANY_ID,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'User registration failed',
+        error: (error as Error).message,
+      };
+    }
+  })
+
   // Station reservation endpoint
   .post(
     '/reserve',
     async ({ body, blockchain: blockchainService }) => {
-      const { stationId, userId, startTime, endTime } = body;
+      const { stationId, startTime, endTime } = body;
 
       try {
-        // Create reservation directly on blockchain
+        // Let the blockchain contract handle ALL validation
+        // No more local validation - contract is the single source of truth
         const actualReservationId = await blockchainService.createReservation(
           stationId,
           startTime || Date.now(),
           endTime || Date.now() + 2 * 60 * 60 * 1000,
         );
 
+        // If we get here, the contract validation passed
         return {
           status: 'success',
-          message: `Station ${stationId} reserved for user ${userId}`,
+          message: `Station ${stationId} reserved successfully`,
           reservationId: actualReservationId,
           company: COMPANY_ID,
         };
       } catch (error) {
+        // Contract validation failed - return the contract's error message
         return {
           status: 'error',
           message: 'Reservation failed',
@@ -200,9 +223,59 @@ const app = new Elysia()
     {
       body: t.Object({
         stationId: t.Number(),
-        userId: t.String(),
         startTime: t.Optional(t.Number()),
         endTime: t.Optional(t.Number()),
+      }),
+    },
+  )
+
+  // Atomic multi-station reservation endpoint
+  .post(
+    '/reserve-multiple',
+    async ({ body, blockchain: blockchainService }) => {
+      const { stationIds, estimatedStopTimes } = body;
+
+      try {
+        log.info(
+          `🔄 Processing atomic reservation for stations: ${stationIds.join(', ')}`,
+        );
+
+        // Calculate end times (2 hours for each stop)
+        const endTimes = estimatedStopTimes.map(
+          (time: number) => time + 2 * 60 * 60 * 1000,
+        );
+
+        // Let the blockchain contract handle ALL validation
+        // No more local validation - contract is the single source of truth
+        const reservationIds = await blockchainService.createAtomicReservation(
+          stationIds,
+          estimatedStopTimes,
+          endTimes,
+        );
+
+        // If we get here, the contract validation passed
+        return {
+          status: 'success',
+          message: `Successfully reserved ${stationIds.length} stations atomically`,
+          reservationIds,
+          stationIds,
+          company: COMPANY_ID,
+        };
+      } catch (error) {
+        // Contract validation failed - return the contract's error message
+        log.error('Atomic reservation failed:', error);
+        return {
+          status: 'error',
+          message: 'Atomic reservation failed',
+          error: (error as Error).message,
+        };
+      }
+    },
+    {
+      body: t.Object({
+        stationIds: t.Array(t.Number()),
+        startTime: t.Optional(t.Number()),
+        estimatedStopTimes: t.Array(t.Number()),
       }),
     },
   )

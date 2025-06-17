@@ -64,6 +64,23 @@ export const reserve = curry(
       };
     }
 
+    // Check station availability status
+    if (station.state === 'charging-car') {
+      return {
+        success: false,
+        message: 'Station is currently charging another vehicle',
+        error: ERROR_CODES.STATION_NOT_AVAILABLE,
+      };
+    }
+
+    if (station.state === 'reserved' && station.reservations.length > 0) {
+      return {
+        success: false,
+        message: 'Station is already reserved by other users',
+        error: ERROR_CODES.STATION_NOT_AVAILABLE,
+      };
+    }
+
     // Submit to blockchain synchronously - no optimistic updates allowed
     const currentTime = Date.now();
     const endTime = currentTime + 2 * 60 * 60 * 1000; // 2 hours from now

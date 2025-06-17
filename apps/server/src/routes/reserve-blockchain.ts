@@ -80,7 +80,7 @@ async function createBlockchainReservation(
       endTime,
     );
 
-    if (reservationId > 0) {
+    if (reservationId >= 0) {
       // Only update local state after blockchain confirmation
       station.reservations.push(userId);
       station.state = 'reserved';
