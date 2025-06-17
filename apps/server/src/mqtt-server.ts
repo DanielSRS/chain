@@ -153,6 +153,7 @@ mqttClient.connect({
       'rechargeList',
       'payment',
       'getStationInfo',
+      'reserveMultipleStations',
     ];
     endpointsTopics.forEach(topic => {
       mqttClient.subscribe(topic, {

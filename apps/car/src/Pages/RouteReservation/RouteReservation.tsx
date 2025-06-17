@@ -81,7 +81,34 @@ export function RouteReservation(props: RouteReservationProps) {
           );
         }
       } else {
-        setReservationResult(`❌ Request failed: ${response.message}`);
+        // Handle specific error types
+        const hasError = 'error' in response && response.error;
+        const errorType =
+          hasError &&
+          typeof response.error === 'object' &&
+          response.error !== null &&
+          'type' in response.error
+            ? (response.error as { type: string }).type
+            : null;
+
+        if (errorType === 'timeout') {
+          setReservationResult(
+            '⏱️ Request timed out - This might happen if:\n' +
+              '• The server is processing a complex blockchain operation\n' +
+              '• MQTT broker connection is slow\n' +
+              '• Server is not subscribed to reserveMultipleStations topic\n' +
+              'Please try again or check server logs.',
+          );
+        } else if (errorType === 'not_connected') {
+          setReservationResult(
+            '🔌 MQTT client not connected\n' +
+              'Please check the MQTT broker connection.',
+          );
+        } else {
+          setReservationResult(
+            `❌ Request failed: ${response.message || 'Unknown error'}`,
+          );
+        }
       }
     } catch (error) {
       setReservationResult(

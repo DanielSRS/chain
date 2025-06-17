@@ -7,6 +7,7 @@ import { useTravelData } from './travel.data.js';
 import { TravelMachine } from './travel.machine.js';
 import { useMachine } from '@xstate/react';
 import { RoutesList } from './components/routes-list.js';
+import { RouteReservation } from '../RouteReservation/RouteReservation.js';
 
 const log = Logger.extend('TravelPage');
 
@@ -33,6 +34,7 @@ export function Travel() {
   const [showDepartureOptions, setShowDepartureOptions] = React.useState(false);
   const [showDestinationOptions, setShowDestinationOptions] =
     React.useState(false);
+  const [showRouteReservation, setShowRouteReservation] = React.useState(false);
   const departure = state.context.departure;
   const destination = state.context.destination;
   const cities = state.context.cities;
@@ -45,10 +47,16 @@ export function Travel() {
   const showRoutes =
     state.matches('CitiesLoaded.Routes.RoutesLoaded') &&
     !showDepartureOptions &&
-    !showDestinationOptions;
+    !showDestinationOptions &&
+    !showRouteReservation;
   const routes = state.context.routes;
 
   log.debug('Travel page state', state.value);
+
+  // If showing route reservation, render the RouteReservation component
+  if (showRouteReservation) {
+    return <RouteReservation onGoBack={() => setShowRouteReservation(false)} />;
+  }
 
   if (loadingCities) {
     return (
@@ -171,7 +179,16 @@ export function Travel() {
         <></>
       )}
 
-      {showRoutes ? <RoutesList routes={routes} /> : <></>}
+      {showRoutes ? (
+        <RoutesList
+          routes={routes}
+          onSelectStation={() => {
+            setShowRouteReservation(true);
+          }}
+        />
+      ) : (
+        <></>
+      )}
     </View>
   );
 }
