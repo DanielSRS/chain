@@ -1,23 +1,27 @@
+import { blockchain } from '../blockchain-server.ts';
 import { curry } from '../utils/curry.ts';
+import { Logger } from '../utils/logger.ts';
 import {
   ERROR_CODES,
   type RequestHandler,
   type StationGroup,
   type UserGroup,
 } from '../utils/types.ts';
+
+const log = Logger.extend('ReserveRoute');
+
 type Handler = RequestHandler<'reserve'>;
 
 export const reserve = curry(
-  (
+  async (
     stations: StationGroup,
     users: UserGroup,
     data: Handler['data'],
-  ): Handler['res'] => {
+  ): Promise<Handler['res']> => {
     const { stationId, userId } = data;
     const station = stations[stationId];
 
     if (!station) {
-      // retutn error
       return {
         success: false,
         message: 'station does not exist',
@@ -34,7 +38,7 @@ export const reserve = curry(
       };
     }
 
-    // verificar se ja tem reserva
+    // Check if user already has reservation on this station
     const hasReservationOnThisStation = station.reservations.includes(userId);
     if (hasReservationOnThisStation) {
       return {
@@ -44,9 +48,10 @@ export const reserve = curry(
       };
     }
 
+    // Check if user has any other reservation
     const hasAnyOtherReservation = Object.entries(stations).reduce(
-      (prev, station) => {
-        return station[1].reservations.includes(userId) || prev;
+      (prev, stationEntry) => {
+        return stationEntry[1].reservations.includes(userId) || prev;
       },
       false,
     );
@@ -59,14 +64,69 @@ export const reserve = curry(
       };
     }
 
-    station.reservations.push(userId);
-    station.state = 'reserved';
+    // Check station availability status
+    if (station.state === 'charging-car') {
+      return {
+        success: false,
+        message: 'Station is currently charging another vehicle',
+        error: ERROR_CODES.STATION_NOT_AVAILABLE,
+      };
+    }
 
-    // retorna sucesso
-    return {
-      success: true,
-      message: `Reserved station ${station.id}`,
-      data: undefined,
-    };
+    if (station.state === 'reserved' && station.reservations.length > 0) {
+      return {
+        success: false,
+        message: 'Station is already reserved by other users',
+        error: ERROR_CODES.STATION_NOT_AVAILABLE,
+      };
+    }
+
+    // Submit to blockchain synchronously - no optimistic updates allowed
+    const currentTime = Date.now();
+    const endTime = currentTime + 2 * 60 * 60 * 1000; // 2 hours from now
+
+    try {
+      const success = await blockchain.submitTransaction({
+        type: 'RESERVE_STATION',
+        data: {
+          stationId,
+          userId: userId.toString(),
+          startTime: currentTime,
+          endTime: endTime,
+        },
+      });
+
+      if (success) {
+        log.info(
+          `✅ Reservation ${userId}->${stationId} confirmed on blockchain`,
+        );
+
+        // Only update local state after blockchain confirmation
+        station.reservations.push(userId);
+        station.state = 'reserved';
+
+        return {
+          success: true,
+          message: `Reserved station ${station.id} via blockchain consensus`,
+          data: undefined,
+        };
+      } else {
+        log.error(
+          `❌ Failed to submit reservation ${userId}->${stationId} to blockchain`,
+        );
+        return {
+          success: false,
+          message: 'Blockchain reservation failed',
+          error: undefined,
+        };
+      }
+    } catch (error) {
+      log.error('Blockchain submission error:', error);
+      return {
+        success: false,
+        message: 'Blockchain consensus failed',
+        error: undefined,
+      };
+    }
   },
 );

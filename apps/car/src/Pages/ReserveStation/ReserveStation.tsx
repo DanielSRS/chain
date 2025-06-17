@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import SelectInput from 'ink-select-input';
 import { View } from '../../../../shared/index.js';
 import { Logger } from '../../../../shared/index.js';
-import { apiClient } from '../../../../shared/src/api/client.js';
+import { mqttHelpers } from '../../api/mqtt-helpers.js';
 import { SharedData } from '../../store/shared-data.js';
 import { Text, useInput } from 'ink';
 import { calculateDistance } from '../../../../shared/src/utils/location.js';
@@ -10,7 +10,6 @@ import type { ErrorCode } from '../../../../shared/src/utils/error-codes.js';
 import type { TCPResponse } from '../../../../shared/index.js';
 import type {
   Station,
-  Charge,
   Response,
   Car,
   ErrorResponse,
@@ -43,45 +42,43 @@ export function ReserveStation(props: {
 
   const startCharging = async () => {
     // Start loading
-    const res = await apiClient({
-      type: 'startCharging',
-      data: {
-        stationId: station.id,
-        userId: car.id,
-        battery_level: SharedData.car.batteryLevel.peek() ?? 50,
-      },
+    const res = await mqttHelpers.startCharging({
+      stationId: station.id,
+      userId: car.id,
+      battery_level: SharedData.car.batteryLevel.peek() ?? 50,
     });
+
     if (res.type === 'success') {
-      const apiResponse = res.data as Response<Charge>;
-      if (apiResponse.success) {
-        SharedData.chargingCar.set(apiResponse.data);
+      if ('success' in res.data && res.data.success && 'data' in res.data) {
+        SharedData.chargingCar.set(res.data.data);
         SharedData.reservedStation.set(undefined);
       } else {
-        Logger.error('startCharging api error: ', apiResponse);
+        Logger.error('startCharging api error: ', res.data);
       }
     } else {
-      Logger.error('startCharging tcp error: ', res.message, res.error);
+      Logger.error('startCharging MQTT error: ', res.message, res.error);
     }
     // End loading
   };
 
   const reserve = async () => {
     // Start loading
-    const res = await apiClient({
-      type: 'reserve',
-      data: {
-        stationId: station.id,
-        userId: car.id,
-      },
+    const res = await mqttHelpers.reserve({
+      stationId: station.id,
+      userId: car.id,
     });
+
     if (res.type === 'success') {
-      const apiResponse = res.data;
-      if (apiResponse.success) {
+      if ('success' in res.data && res.data.success) {
         SharedData.reservedStation.set(station);
         SharedData.reservedStation.reservations.push(car.id);
       }
     }
-    setResponse(res);
+    setResponse(
+      res as TCPResponse<
+        Response<undefined> | ErrorResponse<undefined | ErrorCode>
+      >,
+    );
     // End loading
   };
 

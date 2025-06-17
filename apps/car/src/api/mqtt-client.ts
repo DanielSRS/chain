@@ -46,13 +46,13 @@ export function settupMqttApiClient(mqttClient: Paho.Client) {
       }
 
       // Set a timeout for the request
-      // If the request takes longer than 5 seconds, resolve with success: false
+      // Atomic blockchain operations can take longer, so we use 15 seconds
       const timeout = setTimeout(() => {
         resolve({
           success: false,
           error: { type: 'timeout', data: undefined },
         });
-      }, 5000);
+      }, 15000);
 
       /**
        * Subscribe to the response topic and add a listener

@@ -26,6 +26,15 @@ export const mqttConnectionSchema = z.discriminatedUnion('type', [
       destination: z.string(),
     }),
   }),
+  z.object({
+    type: z.literal('reserveMultipleStations'),
+    data: z.object({
+      stationIds: z.array(z.number()),
+      userId: z.number(),
+      startTime: z.number(),
+      estimatedStopTimes: z.array(z.number()),
+    }),
+  }),
 ]);
 
 export function createRouter() {

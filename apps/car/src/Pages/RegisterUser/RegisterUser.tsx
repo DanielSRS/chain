@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Text } from 'ink';
 import TextInput from 'ink-text-input';
 import SelectInput from 'ink-select-input';
-import { isTcpError, View } from '../../../../shared/index.js';
+import { View } from '../../../../shared/index.js';
 import Spinner from 'ink-spinner';
 import { hasMouseEventEmitedRecently } from '../../../../shared/src/utils/mouse-events.js';
 import { FLEX1 } from '../../constants.js';
-import { apiClient } from '../../../../shared/src/api/client.js';
+import { mqttHelpers } from '../../api/mqtt-helpers.js';
 import type { User } from '../../../../shared/src/utils/main.types.js';
 
 // const log = Logger.extend('RegisterUser');
@@ -15,7 +15,7 @@ export function RegisterUser(props: { onUserCreated: (user: User) => void }) {
   const { onUserCreated } = props;
   const [id, setId] = useState<number>();
   const [idField, setIdFiled] = useState('');
-  const [tcpErrorMsg, settcpErrorMsg] = useState<string>();
+  const [mqttErrorMsg, setMqttErrorMsg] = useState<string>();
   const [creatingUser, setCreatingUser] = useState(false);
 
   const createUser = async () => {
@@ -24,27 +24,26 @@ export function RegisterUser(props: { onUserCreated: (user: User) => void }) {
     }
     // Start loading
     setCreatingUser(true);
-    const response = await apiClient({
-      type: 'registerUser',
-      data: {
-        id: id,
-      },
+    const response = await mqttHelpers.registerUser({
+      id: id,
     });
     setCreatingUser(false);
 
-    // TCP connection error
-    if (isTcpError(response)) {
-      settcpErrorMsg(response.message);
+    // MQTT connection error
+    if (response.type === 'error') {
+      setMqttErrorMsg(response.message);
       return;
     }
 
-    if (!response.data.success) {
-      settcpErrorMsg(response.data.message);
+    if ('success' in response.data && !response.data.success) {
+      setMqttErrorMsg(response.data.message);
       return;
     }
 
     // Usuário já criado
-    onUserCreated(response.data.data);
+    if ('data' in response.data) {
+      onUserCreated(response.data.data);
+    }
 
     // End loading
   };
@@ -107,7 +106,7 @@ export function RegisterUser(props: { onUserCreated: (user: User) => void }) {
       ) : (
         <Text></Text>
       )}
-      <Text>{tcpErrorMsg}</Text>
+      <Text>{mqttErrorMsg}</Text>
 
       {/* Create user */}
       {id ? (
@@ -121,7 +120,7 @@ export function RegisterUser(props: { onUserCreated: (user: User) => void }) {
               label: 'Cancelar',
               value: 'cancel',
             },
-            tcpErrorMsg
+            mqttErrorMsg
               ? {
                   label: 'Tentar novamente',
                   value: 'retry',

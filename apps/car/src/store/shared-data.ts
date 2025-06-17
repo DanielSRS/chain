@@ -2,15 +2,12 @@ import { observable } from '@legendapp/state';
 import type {
   Car,
   Station,
-  Request,
   Position,
   Charge,
 } from '../../../shared/src/utils/main.types.js';
-import { SERVER_HOST, SERVER_PORT } from '../constants.js';
-import { tcpRequest } from '../../../shared/index.js';
 import { Logger } from '../../../shared/index.js';
 import { userStorage } from './persisted.js';
-import { apiClient } from '../../../shared/src/api/client.js';
+import { mqttHelpers } from '../api/mqtt-helpers.js';
 
 /**
  * User key for local storage
@@ -66,21 +63,18 @@ export async function getSuggestions(
   location: Position,
   onResult: (d: Station[]) => void,
 ) {
-  const res = await tcpRequest(
-    {
-      type: 'getSuggestions',
-      data: {
-        id: SharedData.car.peek()?.id ?? -1,
-        location: location,
-      },
-    } satisfies Request,
-    SERVER_HOST,
-    SERVER_PORT,
-  );
+  const res = await mqttHelpers.getSuggestions({
+    id: SharedData.car.peek()?.id ?? -1,
+    location: location,
+  });
+
   if (res.type === 'success') {
     // log.info('Suggestions: ', res.data);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onResult((res.data as any).data as Station[]);
+    if ('data' in res.data && Array.isArray(res.data.data)) {
+      onResult(res.data.data as Station[]);
+    } else {
+      onResult([]);
+    }
     return;
   }
   // log.error('Error: ', res.message, res.error);
@@ -97,29 +91,24 @@ export function deleteUser() {
 }
 
 export async function getCharges(onResult: (d: Charge[]) => void) {
-  const res = await apiClient({
-    type: 'rechargeList',
-    data: {
-      userId: SharedData.car.peek()?.id ?? -1,
-    },
+  const res = await mqttHelpers.rechargeList({
+    userId: SharedData.car.peek()?.id ?? -1,
   });
+
   if (res.type !== 'success') {
-    Logger.error('getCharges tcp Error: ', res);
+    Logger.error('getCharges MQTT Error: ', res);
     return;
   }
+
   // Logger.info('getCharges: ', res.data);
-  if (!res.data.success) {
+  if ('success' in res.data && !res.data.success) {
     Logger.error('getCharges response error: ', res);
-    if (
-      typeof res.data.error === 'object' &&
-      res.data.error.code === 'USER_NOT_FOUND'
-    ) {
-      Logger.error('Server lost user data??', res.data);
-      // Log user out
-      deleteUser();
-      return;
-    }
     return;
   }
-  onResult(res.data.data);
+
+  if ('data' in res.data && Array.isArray(res.data.data)) {
+    onResult(res.data.data);
+  } else {
+    onResult([]);
+  }
 }

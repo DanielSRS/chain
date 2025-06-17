@@ -70,9 +70,25 @@ const topicSubscriptionError =
 mqttClient.connect({
   onSuccess: () => {
     log.info('Connected to MQTT broker successfully');
-    mqttClient.subscribe('cities', {
-      onSuccess: topicSubscriptionSuccess('cities'),
-      onFailure: topicSubscriptionError('cities'),
+
+    // Subscribe to all response topics
+    const responseTopics = [
+      'cities',
+      'getSuggestions/response',
+      'reserve/response',
+      'registerUser/response',
+      'startCharging/response',
+      'endCharging/response',
+      'rechargeList/response',
+      'payment/response',
+      'getStationInfo/response',
+    ];
+
+    responseTopics.forEach(topic => {
+      mqttClient.subscribe(topic, {
+        onSuccess: topicSubscriptionSuccess(topic),
+        onFailure: topicSubscriptionError(topic),
+      });
     });
   },
   onFailure: error => {

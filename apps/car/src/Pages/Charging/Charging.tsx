@@ -2,15 +2,10 @@ import React from 'react';
 import { Text } from 'ink';
 import { use$ } from '@legendapp/state/react';
 import { SharedData } from '../../store/shared-data.js';
-import { FLEX1, SERVER_HOST, SERVER_PORT } from '../../constants.js';
+import { FLEX1 } from '../../constants.js';
 import SelectInput from 'ink-select-input';
 import { Logger, View } from '../../../../shared/index.js';
-import type {
-  Charge,
-  Request,
-  Response,
-} from '../../../../shared/src/utils/main.types.js';
-import { tcpRequest } from '../../../../shared/index.js';
+import { mqttHelpers } from '../../api/mqtt-helpers.js';
 
 interface ChargingProps {
   showProgress?: boolean;
@@ -27,27 +22,20 @@ export function Charging(props: ChargingProps) {
 
   const endCharging = async () => {
     // Start loading
-    const res = await tcpRequest(
-      {
-        type: 'endCharging',
-        data: {
-          battery_level: batteryLevel,
-          stationId: charge.stationId,
-          userId: charge.userId,
-        },
-      } satisfies Request,
-      SERVER_HOST,
-      SERVER_PORT,
-    );
+    const res = await mqttHelpers.endCharging({
+      battery_level: batteryLevel,
+      stationId: charge.stationId,
+      userId: charge.userId,
+    });
+
     if (res.type === 'success') {
-      const apiResponse = res.data as Response<Charge>;
-      if (apiResponse.success) {
+      if ('success' in res.data && res.data.success) {
         SharedData.chargingCar.set(undefined);
       } else {
-        Logger.error('endCharging api error: ', apiResponse);
+        Logger.error('endCharging api error: ', res.data);
       }
     } else {
-      Logger.error('endCharging tcp error: ', res.message, res.error);
+      Logger.error('endCharging MQTT error: ', res.message, res.error);
     }
     // End loading
   };

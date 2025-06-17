@@ -420,6 +420,23 @@ export type RequestResponseMap = {
     };
     output: Response<Station> | ErrorResponse<ErrorCode>;
   };
+  /**
+   * Endpoint para reservar múltiplos pontos de recarga atomicamente
+   */
+  reserveMultipleStations: {
+    /**
+     * Tipo de entrada da requisição.
+     */
+    input: MultiPointReservation;
+    /**
+     * Tipo de saída da requisição.
+     * A resposta pode ser uma resposta de sucesso ou uma
+     * resposta de erro.
+     */
+    output:
+      | Response<AtomicReservationResult>
+      | ErrorResponse<string | ErrorCode>;
+  };
 };
 
 /**
@@ -544,3 +561,47 @@ export function Car(id: number, x: number, y: number): Car {
     batteryLevel: 0,
   };
 }
+
+/**
+ * Representa uma reserva de múltiplos pontos para uma rota
+ */
+export type MultiPointReservation = {
+  /**
+   * Lista dos IDs das estações a serem reservadas
+   */
+  stationIds: number[];
+  /**
+   * ID do usuário que está fazendo a reserva
+   */
+  userId: number;
+  /**
+   * Tempo de início planejado para a viagem (timestamp)
+   */
+  startTime: number;
+  /**
+   * Lista de tempos estimados para cada parada (timestamps)
+   */
+  estimatedStopTimes: number[];
+};
+
+/**
+ * Resultado de uma reserva atômica de múltiplos pontos
+ */
+export type AtomicReservationResult = {
+  /**
+   * Se todas as reservas foram bem-sucedidas
+   */
+  success: boolean;
+  /**
+   * IDs das reservas criadas (se bem-sucedida)
+   */
+  reservationIds?: number[];
+  /**
+   * Mensagem descritiva do resultado
+   */
+  message: string;
+  /**
+   * Detalhes dos erros por estação (se houver falhas)
+   */
+  stationErrors?: { stationId: number; error: string }[];
+};

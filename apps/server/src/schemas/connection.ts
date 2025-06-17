@@ -59,4 +59,13 @@ export const connectionSchema = z.discriminatedUnion('type', [
       id: z.number(),
     }),
   }),
+  z.object({
+    type: z.literal('reserveMultipleStations'),
+    data: z.object({
+      stationIds: z.array(z.number()),
+      userId: z.number(),
+      startTime: z.number(),
+      estimatedStopTimes: z.array(z.number()),
+    }),
+  }),
 ]);

@@ -4,7 +4,7 @@ import { Logger, View } from '../../../../shared/index.js';
 import { Text } from 'ink';
 import { FLEX1 } from '../../../../shared/src/utils/constants.js';
 import SelectInput from 'ink-select-input';
-import { apiClient } from '../../../../shared/src/api/client.js';
+import { mqttHelpers } from '../../api/mqtt-helpers.js';
 
 interface ChargeInfoProps {
   charge: Charge;
@@ -14,21 +14,19 @@ export function ChargeInfo(props: ChargeInfoProps) {
   const { charge, onGoBack } = props;
 
   async function doPay() {
-    const res = await apiClient({
-      type: 'payment',
-      data: {
-        chargeId: charge.chargeId,
-        hasPaid: true,
-        userId: charge.userId,
-      },
+    const res = await mqttHelpers.payment({
+      chargeId: charge.chargeId,
+      hasPaid: true,
+      userId: charge.userId,
     });
+
     if (res.type === 'error') {
-      Logger.error('tcp request failed', res);
+      Logger.error('MQTT request failed', res);
       return;
     }
 
-    if (!res.data.success) {
-      Logger.error('Api respose was an error: ', res.data);
+    if ('success' in res.data && !res.data.success) {
+      Logger.error('Api response was an error: ', res.data);
     }
 
     // pago!!!!!!

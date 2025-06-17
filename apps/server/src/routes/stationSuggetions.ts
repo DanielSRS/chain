@@ -1,4 +1,4 @@
-import { calcRecomendations } from '../main.ts';
+import { calcRecomendations } from '../utils/recommendations.ts';
 import { curry } from '../utils/curry.ts';
 import {
   filterStationsByDistanceRadius,
