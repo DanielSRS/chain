@@ -23,6 +23,8 @@
     "@eslint/js": "^9.23.0",
     "@evilmartians/lefthook": "^1.5.0",
     "@react-native/eslint-config": "0.77.1",
+    "@types/bun": "^1",
+    "bun": "^1.2.16",
     "commitlint": "^17.0.2",
     "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.1.5",

@@ -1346,6 +1346,83 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@oven/bun-darwin-aarch64@npm:1.2.16":
+  version: 1.2.16
+  resolution: "@oven/bun-darwin-aarch64@npm:1.2.16"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@oven/bun-darwin-x64-baseline@npm:1.2.16":
+  version: 1.2.16
+  resolution: "@oven/bun-darwin-x64-baseline@npm:1.2.16"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@oven/bun-darwin-x64@npm:1.2.16":
+  version: 1.2.16
+  resolution: "@oven/bun-darwin-x64@npm:1.2.16"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@oven/bun-linux-aarch64-musl@npm:1.2.16":
+  version: 1.2.16
+  resolution: "@oven/bun-linux-aarch64-musl@npm:1.2.16"
+  conditions: os=linux & cpu=aarch64
+  languageName: node
+  linkType: hard
+
+"@oven/bun-linux-aarch64@npm:1.2.16":
+  version: 1.2.16
+  resolution: "@oven/bun-linux-aarch64@npm:1.2.16"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@oven/bun-linux-x64-baseline@npm:1.2.16":
+  version: 1.2.16
+  resolution: "@oven/bun-linux-x64-baseline@npm:1.2.16"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@oven/bun-linux-x64-musl-baseline@npm:1.2.16":
+  version: 1.2.16
+  resolution: "@oven/bun-linux-x64-musl-baseline@npm:1.2.16"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@oven/bun-linux-x64-musl@npm:1.2.16":
+  version: 1.2.16
+  resolution: "@oven/bun-linux-x64-musl@npm:1.2.16"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@oven/bun-linux-x64@npm:1.2.16":
+  version: 1.2.16
+  resolution: "@oven/bun-linux-x64@npm:1.2.16"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@oven/bun-windows-x64-baseline@npm:1.2.16":
+  version: 1.2.16
+  resolution: "@oven/bun-windows-x64-baseline@npm:1.2.16"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@oven/bun-windows-x64@npm:1.2.16":
+  version: 1.2.16
+  resolution: "@oven/bun-windows-x64@npm:1.2.16"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
 "@pkgjs/parseargs@npm:^0.11.0":
   version: 0.11.0
   resolution: "@pkgjs/parseargs@npm:0.11.0"
@@ -1569,6 +1646,15 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: 10c0/7a36114b8e61faba5c28b433c3e5aabded261745dabb8f3fe41b2d84e8c4c2b8282e52a88a842bd31a565ff5dbf685145ccd91171f1a8d657fb249025c17aa85
+  languageName: node
+  linkType: hard
+
+"@types/bun@npm:^1":
+  version: 1.2.16
+  resolution: "@types/bun@npm:1.2.16"
+  dependencies:
+    bun-types: "npm:1.2.16"
+  checksum: 10c0/f1fe2dda61e8ab962c5fe90cacb949f25f8d66257693fd32d3771211f478e517f8e2787f322e0429882da9b5878d4619d829c32cc0ad5c7859de74c3b0ff90e0
   languageName: node
   linkType: hard
 
@@ -2507,12 +2593,67 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bun-types@npm:1.2.16":
+  version: 1.2.16
+  resolution: "bun-types@npm:1.2.16"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/ce19844e4dbba6f48cb20af540f9e2b8f89bcfe9c9fd86821c4703d2e9731ce5f4ac8e27af33eae1e1f831f96a895b542fe79948b6a30e62bfbe7b4d8f8e304a
+  languageName: node
+  linkType: hard
+
 "bun-types@npm:latest":
   version: 1.2.12
   resolution: "bun-types@npm:1.2.12"
   dependencies:
     "@types/node": "npm:*"
   checksum: 10c0/9e6f421f82164f39ada25f202969f267609e477286817395420cf2b0f4d9e98d2243ec5e73f564a4448941d6706a53329e2fbdbdac7e2e6a32f6882ec63eddae
+  languageName: node
+  linkType: hard
+
+"bun@npm:^1.2.16":
+  version: 1.2.16
+  resolution: "bun@npm:1.2.16"
+  dependencies:
+    "@oven/bun-darwin-aarch64": "npm:1.2.16"
+    "@oven/bun-darwin-x64": "npm:1.2.16"
+    "@oven/bun-darwin-x64-baseline": "npm:1.2.16"
+    "@oven/bun-linux-aarch64": "npm:1.2.16"
+    "@oven/bun-linux-aarch64-musl": "npm:1.2.16"
+    "@oven/bun-linux-x64": "npm:1.2.16"
+    "@oven/bun-linux-x64-baseline": "npm:1.2.16"
+    "@oven/bun-linux-x64-musl": "npm:1.2.16"
+    "@oven/bun-linux-x64-musl-baseline": "npm:1.2.16"
+    "@oven/bun-windows-x64": "npm:1.2.16"
+    "@oven/bun-windows-x64-baseline": "npm:1.2.16"
+  dependenciesMeta:
+    "@oven/bun-darwin-aarch64":
+      optional: true
+    "@oven/bun-darwin-x64":
+      optional: true
+    "@oven/bun-darwin-x64-baseline":
+      optional: true
+    "@oven/bun-linux-aarch64":
+      optional: true
+    "@oven/bun-linux-aarch64-musl":
+      optional: true
+    "@oven/bun-linux-x64":
+      optional: true
+    "@oven/bun-linux-x64-baseline":
+      optional: true
+    "@oven/bun-linux-x64-musl":
+      optional: true
+    "@oven/bun-linux-x64-musl-baseline":
+      optional: true
+    "@oven/bun-windows-x64":
+      optional: true
+    "@oven/bun-windows-x64-baseline":
+      optional: true
+  bin:
+    bun: bin/bun.exe
+    bunx: bin/bun.exe
+  checksum: 10c0/a76898967c10124216113757182c5aa22f7db1567561ffe1347b13172e352fb884ba9e4416782d252d4ae7946ea4bcb7d089a79bd558e8c8f3884d5c93b51eaf
+  conditions: (os=darwin | os=linux | os=win32) & (cpu=arm64 | cpu=x64 | cpu=aarch64)
   languageName: node
   linkType: hard
 
@@ -7303,6 +7444,8 @@ __metadata:
     "@eslint/js": "npm:^9.23.0"
     "@evilmartians/lefthook": "npm:^1.5.0"
     "@react-native/eslint-config": "npm:0.77.1"
+    "@types/bun": "npm:^1"
+    bun: "npm:^1.2.16"
     commitlint: "npm:^17.0.2"
     eslint: "npm:^9.23.0"
     eslint-config-prettier: "npm:^10.1.5"
